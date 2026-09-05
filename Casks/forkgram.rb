@@ -17,7 +17,7 @@ class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
 
   def token
     @token ||= ENV["HOMEBREW_GITHUB_API_TOKEN"].presence ||
-               Utils.safe_popen_read("/opt/homebrew/bin/gh", "auth", "token").strip
+               ::Utils.safe_popen_read("/opt/homebrew/bin/gh", "auth", "token").strip
   end
 
   def asset_api_url

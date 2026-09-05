@@ -47,8 +47,8 @@ end
 
 # Same token as homebrew/cask's forkgram on purpose: same app, our build (see README).
 cask "forkgram" do
-  version "0"
-  sha256 "0"
+  version "7.1.4"
+  sha256 "cd9a78c76caaba8740667e70500d56804d8bd4294955648d630f3cbc6a4ba761"
 
   url "https://github.com/servitola/telegram-desktop/releases/download/v#{version}-fork/Forkgram-#{version}.zip",
       using: PrivateGitHubReleaseDownloadStrategy

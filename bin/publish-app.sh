@@ -63,7 +63,10 @@ sha=$(shasum -a 256 "$work/$zip" | cut -d' ' -f1)
 
 sed -i '' -e "s|^  version \".*\"|  version \"$version\"|" -e "s|^  sha256 \".*\"|  sha256 \"$sha\"|" "$tap/$cask"
 grep -q "version \"$version\"" "$tap/$cask" && grep -q "sha256 \"$sha\"" "$tap/$cask" || { echo "cask bump failed" >&2; exit 1 }
-brew style "$tap/$cask"
+# Lint/DuplicateMethods is excluded because a cask that defines its own download strategy
+# class (forkgram) exists twice on this machine, here and in brew's clone of the tap, and
+# rubocop reports the second definition as a duplicate of the first.
+brew style --except-cops Lint/DuplicateMethods "$tap/$cask"
 
 gh release create "$tag" -R "$gh_repo" --target "$target" --title "$name $version" \
   --notes "Built from $gh_repo@$target, signed with Developer ID, not notarized. Install: brew install servitola/tap/$token" \

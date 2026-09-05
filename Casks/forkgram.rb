@@ -54,7 +54,13 @@ cask "forkgram" do
       using: PrivateGitHubReleaseDownloadStrategy
   name "Forkgram"
   desc "Telegram Desktop (Forkgram base) with personal patches"
-  homepage "https://github.com/servitola/telegram-desktop"
+  homepage "https://github.com/forkgram/tdesktop"
+
+  livecheck do
+    url :url
+    strategy :github_latest
+    regex(/^v?(\d+(?:\.\d+)+)-fork$/i)
+  end
 
   depends_on arch: :arm64
   depends_on macos: :ventura

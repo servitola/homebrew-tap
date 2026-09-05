@@ -10,6 +10,7 @@ cask "transmission" do
   livecheck do
     url :url
     strategy :github_latest
+    regex(/^v?(\d+(?:\.\d+)+(?:-[\w.]+)?)$/i)
   end
 
   depends_on macos: :tahoe

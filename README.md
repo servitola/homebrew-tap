@@ -13,6 +13,12 @@ brew install servitola/tap/transmission
 | --- | --- | --- |
 | `transmission` | Transmission with native Liquid Glass UI (macOS 26+) | [servitola/transmission](https://github.com/servitola/transmission) |
 | `zap-terminal` | Zap terminal (open-source Warp fork), nightly build | [servitola/zap-terminal](https://github.com/servitola/zap-terminal) |
+| `forkgram` | Telegram Desktop (Forkgram base) with personal patches | [servitola/telegram-desktop](https://github.com/servitola/telegram-desktop), private |
+
+`forkgram` downloads from a private repository: the cask carries its own download
+strategy that resolves the asset through the GitHub API with the local `gh`
+login (or `HOMEBREW_GITHUB_API_TOKEN`). On a Mac without `gh auth login` it
+will not install.
 
 `transmission` keeps the core cask's token on purpose: it is the same app, and
 `brew upgrade` resolves the installed cask by its tap. Uninstall the core
@@ -45,6 +51,11 @@ the commit that was built.
 - Zap: the nightly `dotfiles/cron/scripts/zap-sync.sh` builds, publishes
   `0.1.0-<date>.<sha>` with the TCC entitlements and installs it with
   `brew upgrade`. See `dotfiles/cron/cron_jobs/fork-sync/zap.private.cron`.
+- Forkgram: the nightly `dotfiles/cron/scripts/telegram-desktop-sync.sh` pushes
+  branch `mine`, publishes `<AppVersionStr>` under tag `v<version>-fork`
+  (`--strip --target mine`) and installs it with brew.
+- Telegram for Android is not a cask: `telegram-android-sync.sh` only archives
+  each APK as a release of the private `servitola/telegram-android`.
 
 ## Adding a cask or formula
 

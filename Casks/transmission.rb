@@ -13,6 +13,7 @@ cask "transmission" do
     regex(/^v?(\d+(?:\.\d+)+(?:-[\w.]+)?)$/i)
   end
 
+  depends_on arch: :arm64
   depends_on macos: :tahoe
 
   app "Transmission.app"

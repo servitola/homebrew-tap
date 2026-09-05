@@ -3,7 +3,7 @@ cask "zap-terminal" do
   version "0.1.0-20260905.5d87445"
   sha256 "eee1c38fba5ad84cd7c373325a0f76d52afe6819b3c162113c5e7a62ad899db0"
 
-  url "https://github.com/servitola/zap/releases/download/v#{version}/Zap-#{version}.zip"
+  url "https://github.com/servitola/zap-terminal/releases/download/v#{version}/Zap-#{version}.zip"
   name "Zap"
   desc "Terminal with AI and agent support, open-source Warp fork, nightly build"
   homepage "https://github.com/zerx-lab/zap"

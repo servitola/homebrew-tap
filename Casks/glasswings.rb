@@ -69,8 +69,8 @@ cask "glasswings" do
   # Still the legacy Ruby block, not `postflight_steps`: those run in Homebrew's cask
   # sandbox, where `launchctl bootstrap` answers "Bootstrap failed: 5: Input/output error"
   # (tried 2026-09-06). When the legacy block is removed, the daemon has to register its
-  # own LaunchAgent (SMAppService) on first launch instead.
-  # rubocop:disable Cask/InstallSteps
+  # own LaunchAgent (SMAppService) on first launch instead. bin/publish-app.sh skips the
+  # Cask/InstallSteps cop for this reason.
   postflight do
     system_command "/usr/bin/xattr",
                    args: ["-dr", "com.apple.quarantine", "#{appdir}/Glasswings.app"]
@@ -95,7 +95,6 @@ cask "glasswings" do
     system_command "/bin/launchctl", args: ["bootstrap", domain, plist]
     system_command "/bin/launchctl", args: ["enable", "#{domain}/app.glasswings.daemon"]
   end
-  # rubocop:enable Cask/InstallSteps
 
   uninstall launchctl: "app.glasswings.daemon"
 

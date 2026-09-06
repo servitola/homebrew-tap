@@ -15,6 +15,7 @@ brew install servitola/tap/transmission
 | `zap-terminal` | Zap terminal (open-source Warp fork), nightly build | [servitola/zap-terminal](https://github.com/servitola/zap-terminal) |
 | `forkgram` | Telegram Desktop (Forkgram base) with personal patches | [servitola/telegram-desktop](https://github.com/servitola/telegram-desktop), private |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage limits | [servitola/claude_counter](https://github.com/servitola/claude_counter) |
+| `glasswings` | Liquid Glass notification banners daemon plus `glasswings-send` CLI | [servitola/glasswings](https://github.com/servitola/glasswings), private |
 
 `forkgram` downloads from a private repository: the cask carries its own download
 strategy that resolves the asset through the GitHub API with the local `gh`
@@ -59,6 +60,9 @@ the commit that was built.
   pushes the tag to gitea (the mirror carries it to GitHub), builds with
   Developer ID and calls `publish-app.sh`. The tag must reach GitHub through
   gitea: the mirror is `--mirror --force` and would delete a tag made on GitHub.
+- Glasswings: `bin/release-glasswings.sh <version>`, same shape as Claude Counter.
+  The cask writes and bootstraps the LaunchAgent in `postflight` and takes it
+  down with `uninstall launchctl:`, so `brew upgrade` restarts the daemon.
 - Telegram for Android is not a cask: `telegram-android-sync.sh` only archives
   each APK as a release of the private `servitola/telegram-android`.
 

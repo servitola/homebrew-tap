@@ -41,8 +41,8 @@ class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
 end
 
 cask "glasswings" do
-  version "0"
-  sha256 "0"
+  version "0.3"
+  sha256 "bdadc7e448f77b5abfb45cf9947a86483a047ea6b849fff947e9be31373ddb82"
 
   url "https://github.com/servitola/glasswings/releases/download/v#{version}/Glasswings-#{version}.zip",
       using: PrivateGitHubReleaseDownloadStrategy

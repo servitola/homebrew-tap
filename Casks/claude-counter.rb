@@ -20,11 +20,9 @@ cask "claude-counter" do
   # Signed with Developer ID, not notarized: Gatekeeper would refuse the quarantined
   # copy, so the attribute goes the way `--no-quarantine` drops it. A menu-bar app is
   # expected to be running, so an install or upgrade brings it back up.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/ClaudeCounter.app"]
-    system_command "/usr/bin/open",
-                   args: ["-a", "#{appdir}/ClaudeCounter.app"]
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/ClaudeCounter.app"]
+    run "/usr/bin/open", args: ["-a", "{{appdir}}/ClaudeCounter.app"]
   end
 
   uninstall quit: "com.servitola.claudecounter"

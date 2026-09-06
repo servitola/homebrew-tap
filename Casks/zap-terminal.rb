@@ -21,9 +21,8 @@ cask "zap-terminal" do
 
   # Signed with Developer ID plus the TCC entitlements, not notarized: Gatekeeper would
   # refuse the quarantined copy, so the attribute goes the way `--no-quarantine` drops it.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Zap.app"]
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Zap.app"]
   end
 
   zap trash: [

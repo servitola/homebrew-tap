@@ -21,9 +21,8 @@ cask "transmission" do
   # The build is signed with Developer ID but not notarized, so Gatekeeper refuses
   # to open the quarantined copy Homebrew installs. Dropping the attribute is what
   # `brew install --no-quarantine` would do; done here so plain `brew upgrade` works.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Transmission.app"]
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Transmission.app"]
   end
 
   zap trash: [

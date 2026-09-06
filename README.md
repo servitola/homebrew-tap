@@ -17,6 +17,11 @@ brew install servitola/tap/transmission
 | `claude-counter` | Menu-bar indicator of Claude.ai usage limits | [servitola/claude_counter](https://github.com/servitola/claude_counter) |
 | `glasswings` | Liquid Glass notification banners daemon plus `glasswings-send` CLI | [servitola/glasswings](https://github.com/servitola/glasswings), private |
 | `voiceink` | VoiceInk (voice to text) fork with personal patches, nightly build | [servitola/VoiceInk](https://github.com/servitola/VoiceInk) |
+| `zen` | Zen Browser built weekly from source, auto-update disabled | [servitola/zen-browser](https://github.com/servitola/zen-browser) |
+
+`zen` keeps the core cask's token too. In a Brewfile it must be written as
+`cask "servitola/tap/zen"`: a bare `cask "zen"` pulls the core cask over this
+build. It is ad-hoc signed, as every build of that job has been.
 
 `voiceink` keeps the core cask's token like `transmission` does. It is signed
 with the self-signed "VoiceInk Local Signing" identity, not Developer ID: the
@@ -72,6 +77,10 @@ the commit that was built.
   builds, gates, installs with `make local`, force-pushes `main` to the fork,
   publishes `<version>-<date>.<sha>` (`--identity` the local certificate,
   `--entitlements VoiceInk.local.entitlements`) and reinstalls through brew.
+- Zen: the weekly `dotfiles/cron/scripts/zen-browser-sync.sh` builds from
+  source, installs, verifies, pushes `stable` to the fork, publishes the
+  installed bundle (`--identity -`, policies.json included) and reinstalls
+  through brew.
 - Telegram for Android is not a cask: `telegram-android-sync.sh` only archives
   each APK as a release of the private `servitola/telegram-android`.
 

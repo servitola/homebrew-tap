@@ -16,6 +16,11 @@ brew install servitola/tap/transmission
 | `forkgram` | Telegram Desktop (Forkgram base) with personal patches | [servitola/telegram-desktop](https://github.com/servitola/telegram-desktop), private |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage limits | [servitola/claude_counter](https://github.com/servitola/claude_counter) |
 | `glasswings` | Liquid Glass notification banners daemon plus `glasswings-send` CLI | [servitola/glasswings](https://github.com/servitola/glasswings), private |
+| `voiceink` | VoiceInk (voice to text) fork with personal patches, nightly build | [servitola/VoiceInk](https://github.com/servitola/VoiceInk) |
+
+`voiceink` keeps the core cask's token like `transmission` does. It is signed
+with the self-signed "VoiceInk Local Signing" identity, not Developer ID: the
+app's TCC grants are pinned to that certificate and would be lost otherwise.
 
 `forkgram` downloads from a private repository: the cask carries its own download
 strategy that resolves the asset through the GitHub API with the local `gh`
@@ -63,6 +68,10 @@ the commit that was built.
 - Glasswings: `bin/release-glasswings.sh <version>`, same shape as Claude Counter.
   The cask writes and bootstraps the LaunchAgent in `postflight` and takes it
   down with `uninstall launchctl:`, so `brew upgrade` restarts the daemon.
+- VoiceInk: the nightly `dotfiles/cron/scripts/voiceink-upstream-sync.sh` rebases,
+  builds, gates, installs with `make local`, force-pushes `main` to the fork,
+  publishes `<version>-<date>.<sha>` (`--identity` the local certificate,
+  `--entitlements VoiceInk.local.entitlements`) and reinstalls through brew.
 - Telegram for Android is not a cask: `telegram-android-sync.sh` only archives
   each APK as a release of the private `servitola/telegram-android`.
 

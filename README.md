@@ -14,6 +14,7 @@ brew install servitola/tap/transmission
 | `transmission` | Transmission with native Liquid Glass UI (macOS 26+) | [servitola/transmission](https://github.com/servitola/transmission) |
 | `zap-terminal` | Zap terminal (open-source Warp fork), nightly build | [servitola/zap-terminal](https://github.com/servitola/zap-terminal) |
 | `forkgram` | Telegram Desktop (Forkgram base) with personal patches | [servitola/telegram-desktop](https://github.com/servitola/telegram-desktop), private |
+| `claude-counter` | Menu-bar indicator of Claude.ai usage limits | [servitola/claude_counter](https://github.com/servitola/claude_counter) |
 
 `forkgram` downloads from a private repository: the cask carries its own download
 strategy that resolves the asset through the GitHub API with the local `gh`
@@ -54,6 +55,10 @@ the commit that was built.
 - Forkgram: the nightly `dotfiles/cron/scripts/telegram-desktop-sync.sh` pushes
   branch `mine`, publishes `<AppVersionStr>` under tag `v<version>-fork`
   (`--strip --target mine`) and installs it with brew.
+- Claude Counter: `bin/release-claude-counter.sh <version>` tags the checkout,
+  pushes the tag to gitea (the mirror carries it to GitHub), builds with
+  Developer ID and calls `publish-app.sh`. The tag must reach GitHub through
+  gitea: the mirror is `--mirror --force` and would delete a tag made on GitHub.
 - Telegram for Android is not a cask: `telegram-android-sync.sh` only archives
   each APK as a release of the private `servitola/telegram-android`.
 

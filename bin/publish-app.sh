@@ -33,7 +33,8 @@ zip=$name-$version.zip
 [[ -f $tap/$cask ]] || { echo "no cask $tap/$cask" >&2; exit 1 }
 [[ -z $entitlements || -f $entitlements ]] || { echo "no entitlements file $entitlements" >&2; exit 1 }
 git -C "$tap" diff --quiet -- "$cask" || { echo "$cask has uncommitted changes" >&2; exit 1 }
-security find-identity -v -p codesigning | grep -q -- "$identity" || { echo "signing identity missing: $identity" >&2; exit 1 }
+# Not `-v`: a self-signed identity is listed as CSSMERR_TP_NOT_TRUSTED and still signs.
+security find-identity -p codesigning | grep -q -- "$identity" || { echo "signing identity missing: $identity" >&2; exit 1 }
 gh release view "$tag" -R "$gh_repo" >/dev/null 2>&1 && { echo "release $tag already exists in $gh_repo" >&2; exit 1 }
 
 work=$(mktemp -d)

@@ -59,6 +59,17 @@ jobs:
           TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
         run: brew audit --cask --strict --tap="$TAP_NAME"
 
+      # lib/ claims `typed: strict`, so let Sorbet hold it to that. Casks are exempt by
+      # Homebrew's own config and there is nothing to check in them anyway.
+      - name: brew typecheck
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
+        run: |
+          tap="$(brew --repository "$TAP_NAME")"
+          for file in "$tap"/lib/*.rb; do
+            brew typecheck --file "$file"
+          done
+
       # The one thing style and audit cannot see: a `sha256` that does not match the
       # release, or an asset that is not there at all. Both are what a bad publish
       # leaves behind, and today they only surface when someone installs. ~310 MB.

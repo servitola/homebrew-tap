@@ -15,6 +15,13 @@ cask "transmission" do
 
   depends_on arch: :arm64
   depends_on macos: :tahoe
+  # The binary links these Homebrew opt-libs by absolute path and dies in dyld without
+  # them; `brew autoremove` has taken one out from under it before.
+  depends_on formula: "gettext"
+  depends_on formula: "libdeflate"
+  depends_on formula: "libevent"
+  depends_on formula: "libpsl"
+  depends_on formula: "miniupnpc"
 
   app "Transmission.app"
 

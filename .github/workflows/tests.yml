@@ -43,4 +43,18 @@ jobs:
       # Style and audit only. There is nothing to build: every cask points at a release
       # this tap's own publisher produced, two of them in private repositories no CI
       # token reaches, so --online audits and install tests cannot pass here.
-      - run: brew test-bot --only-tap-syntax
+      #
+      # Not `brew test-bot --only-tap-syntax`: it globs **/*.sh and hands them to
+      # shellcheck, which has no zsh support and reports the publisher's `${0:a:h:h}`
+      # and brace blocks as syntax errors. Naming the two Ruby directories skips it.
+      - name: brew style
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
+        run: |
+          cd "$(brew --repository "$TAP_NAME")"
+          brew style Casks lib
+
+      - name: brew audit
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
+        run: brew audit --cask --strict --tap="$TAP_NAME"

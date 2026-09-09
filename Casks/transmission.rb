@@ -25,6 +25,8 @@ cask "transmission" do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Transmission.app"]
   end
 
+  uninstall quit: "org.m0k.transmission"
+
   zap trash: [
     "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/org.m0k.transmission.sfl*",
     "~/Library/Application Support/Transmission",

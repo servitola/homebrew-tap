@@ -48,7 +48,7 @@ cask "glasswings" do
       using: PrivateGitHubReleaseDownloadStrategy
   name "Glasswings"
   desc "Liquid Glass notification banners: resident daemon plus CLI"
-  homepage "https://github.com/servitola/glasswings"
+  homepage "https://github.com/servitola/homebrew-tap"
 
   livecheck do
     url :url
@@ -61,16 +61,15 @@ cask "glasswings" do
   app "Glasswings.app"
   binary "#{appdir}/Glasswings.app/Contents/Resources/bin/glasswings-send"
 
-  # Glasswings is a resident daemon under launchd (KeepAlive), not something the user
-  # opens. Homebrew has no LaunchAgent artifact for casks, so the agent is written here,
-  # exactly as the repo's install.sh writes it, and `uninstall launchctl:` takes it down
-  # on upgrade and uninstall. The quarantine attribute goes the way `--no-quarantine`
-  # drops it: Developer ID signed, not notarized.
-  # Still the legacy Ruby block, not `postflight_steps`: those run in Homebrew's cask
-  # sandbox, where `launchctl bootstrap` answers "Bootstrap failed: 5: Input/output error"
-  # (tried 2026-09-06). When the legacy block is removed, the daemon has to register its
-  # own LaunchAgent (SMAppService) on first launch instead. bin/publish-app.sh skips the
-  # Cask/InstallSteps cop for this reason.
+  # Glasswings is a resident launchd daemon, not something the user opens, and casks have
+  # no LaunchAgent artifact — so the agent is written here exactly as the repo's
+  # install.sh writes it, and `uninstall launchctl:` takes it down on upgrade.
+  #
+  # This is the only cask in the tap still on the legacy Ruby block: inside the
+  # `postflight_steps` sandbox `launchctl bootstrap` answers "Bootstrap failed: 5:
+  # Input/output error" (2026-09-06), so bin/publish-app.sh skips the Cask/InstallSteps
+  # cop. When Homebrew drops the block, Glasswings must register its own agent
+  # (SMAppService) at first launch.
   postflight do
     system_command "/usr/bin/xattr",
                    args: ["-dr", "com.apple.quarantine", "#{appdir}/Glasswings.app"]

@@ -11,7 +11,7 @@ brew install servitola/tap/<token>
 
 | Token | What | Built | Source |
 | --- | --- | --- | --- |
-| `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | on demand | [transmission](https://github.com/servitola/transmission) |
+| `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | nightly | [transmission](https://github.com/servitola/transmission) |
 | `forkgram` | Telegram Desktop (Forkgram) + personal patches | nightly | [telegram-desktop](https://github.com/servitola/telegram-desktop) 🔒 |
 | `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal) |
 | `voiceink` | VoiceInk (voice to text) + personal patches | nightly | [VoiceInk](https://github.com/servitola/VoiceInk) |
@@ -45,10 +45,9 @@ has on GitHub.
 
 | App | Trigger |
 | --- | --- |
-| Transmission | `bin/release-transmission.sh [version]` |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
 | Glasswings | `bin/release-glasswings.sh <version>` |
-| Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build |
+| Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
 The two script-driven tags (Claude Counter, Glasswings) are pushed to gitea, not
 GitHub: the mirror runs `--mirror --force` and would delete a tag made upstream.

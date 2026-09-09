@@ -1,0 +1,46 @@
+name: brew test-bot
+
+# Push only: GitHub is a push mirror of the gitea origin, refreshed with --mirror
+# --force, so a pull request merged here would be erased on the next sync. For the same
+# reason there is no dependabot config — the action pins below are bumped by hand.
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  test-bot:
+    runs-on: macos-26
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@3cdb78d0f62ad29dd32de765782654f4eedea607 # 2026.08.31.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Homebrew Bundler RubyGems
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: macos-26-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: macos-26-rubygems-
+
+      - run: brew test-bot --only-cleanup-before
+
+      - run: brew test-bot --only-setup
+
+      # Style and audit only. There is nothing to build: every cask points at a release
+      # this tap's own publisher produced, two of them in private repositories no CI
+      # token reaches, so --online audits and install tests cannot pass here.
+      - run: brew test-bot --only-tap-syntax

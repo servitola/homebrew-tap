@@ -50,14 +50,9 @@ jobs:
       - name: brew style
         env:
           TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
-        # Homebrew's own .rubocop.yml excludes Taps/**/* from the Sorbet sigil cops, and
-        # on a developer machine the tap really does live under Library/Taps, so a local
-        # `brew style` never raises them. The runner's checkout is outside that glob, so
-        # lib/ would be asked for `typed: strict` — a sigil the file cannot honour
-        # without runtime sigs on a download strategy that has to keep working.
         run: |
           cd "$(brew --repository "$TAP_NAME")"
-          brew style --except-cops Sorbet/StrictSigil,Sorbet/TrueSigil Casks lib
+          brew style Casks lib
 
       - name: brew audit
         env:

@@ -26,8 +26,36 @@ class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
   private
 
   def token
-    @token ||= ENV["HOMEBREW_GITHUB_API_TOKEN"].presence ||
-               ::Utils.safe_popen_read("/opt/homebrew/bin/gh", "auth", "token").strip
+    @token ||= ENV["HOMEBREW_GITHUB_API_TOKEN"].presence || gh_token
+  end
+
+  # Brew's Ruby runs with a scrubbed PATH — shims, /usr/bin, /bin, /usr/sbin, /sbin —
+  # so `which("gh")` finds nothing and the executable has to be named by prefix.
+  def gh_executable
+    @gh_executable ||= [HOMEBREW_PREFIX/"bin/gh", *::Utils.which("gh")]
+                       .find { |path| path.file? && path.executable? }
+  end
+
+  def gh_token
+    unless gh_executable
+      raise CurlDownloadStrategyError.new(
+        url, "this release is in a private repository, so Homebrew needs a GitHub token " \
+             "that can read it: `brew install gh && gh auth login`, or set " \
+             "HOMEBREW_GITHUB_API_TOKEN"
+      )
+    end
+
+    token = begin
+      ::Utils.safe_popen_read(gh_executable, "auth", "token").strip
+    rescue ErrorDuringExecution
+      ""
+    end
+    return token if token.presence
+
+    raise CurlDownloadStrategyError.new(
+      url, "`#{gh_executable} auth token` gave nothing back: run `gh auth login`, or set " \
+           "HOMEBREW_GITHUB_API_TOKEN"
+    )
   end
 
   def asset_api_url

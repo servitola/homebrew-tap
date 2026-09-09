@@ -58,3 +58,17 @@ jobs:
         env:
           TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
         run: brew audit --cask --strict --tap="$TAP_NAME"
+
+      # The one thing style and audit cannot see: a `sha256` that does not match the
+      # release, or an asset that is not there at all. Both are what a bad publish
+      # leaves behind, and today they only surface when someone installs. ~310 MB.
+      # The two private casks are missing on purpose — their assets need a token no
+      # CI run has.
+      - name: brew fetch
+        run: |
+          brew fetch --cask \
+            servitola/tap/transmission \
+            servitola/tap/zap-terminal \
+            servitola/tap/voiceink \
+            servitola/tap/zen \
+            servitola/tap/claude-counter

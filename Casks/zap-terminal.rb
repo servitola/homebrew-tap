@@ -25,6 +25,8 @@ cask "zap-terminal" do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Zap.app"]
   end
 
+  uninstall quit: "dev.zap.Zap"
+
   zap trash: [
     "~/Library/Application Support/dev.zap.Zap",
     "~/Library/Logs/zap.log*",

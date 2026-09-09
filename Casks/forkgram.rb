@@ -73,6 +73,8 @@ cask "forkgram" do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Forkgram.app"]
   end
 
+  uninstall quit: "com.tdesktop.Telegram"
+
   zap trash: [
     "~/Library/Application Support/Forkgram Desktop",
     "~/Library/Preferences/com.tdesktop.Telegram.plist",

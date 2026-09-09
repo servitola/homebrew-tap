@@ -10,34 +10,47 @@
 #
 # Casks reach this with `require_relative "../lib/..."`: a cask file is instance_eval'd
 # with its own path, so the tap's own Ruby loads the same way it would in a formula.
-#
-# `typed: strict` is the sigil Homebrew's rubocop demands of Ruby that is neither a
-# formula nor a cask. Nothing type-checks this file — brew style only reads the level —
-# and a laxer sigil passes locally only because the cop excludes Library/Taps.
 class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
+  ASSET_URL_PATTERN = %r{\Ahttps://github\.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)\z}
+
+  sig { params(url: String, name: String, version: T.nilable(T.any(String, Version)), meta: T.untyped).void }
   def initialize(url, name, version, **meta)
     super
-    m = url.match(%r{\Ahttps://github\.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)\z})
-    raise CurlDownloadStrategyError.new(url, "not a GitHub release asset URL") unless m
 
-    @owner, @repo, @tag, @asset = m.captures
+    match = ASSET_URL_PATTERN.match(url)
+    raise CurlDownloadStrategyError.new(url, "not a GitHub release asset URL") if match.nil?
+
+    # `to_s` rather than `T.must`, which Homebrew's rubocop forbids: every group in the
+    # pattern needs at least one character, so a matched group is never nil.
+    @owner = T.let(match[1].to_s, String)
+    @repo = T.let(match[2].to_s, String)
+    @tag = T.let(match[3].to_s, String)
+    @asset = T.let(match[4].to_s, String)
+
+    @token = T.let(nil, T.nilable(String))
+    @gh_executable = T.let(nil, T.nilable(Pathname))
+    @asset_api_url = T.let(nil, T.nilable(String))
   end
 
   private
 
+  sig { returns(String) }
   def token
     @token ||= ENV["HOMEBREW_GITHUB_API_TOKEN"].presence || gh_token
   end
 
   # Brew's Ruby runs with a scrubbed PATH — shims, /usr/bin, /bin, /usr/sbin, /sbin —
   # so `which("gh")` finds nothing and the executable has to be named by prefix.
+  sig { returns(T.nilable(Pathname)) }
   def gh_executable
     @gh_executable ||= [HOMEBREW_PREFIX/"bin/gh", *::Utils.which("gh")]
                        .find { |path| path.file? && path.executable? }
   end
 
+  sig { returns(String) }
   def gh_token
-    unless gh_executable
+    gh = gh_executable
+    if gh.nil?
       raise CurlDownloadStrategyError.new(
         url, "this release is in a private repository, so Homebrew needs a GitHub token " \
              "that can read it: `brew install gh && gh auth login`, or set " \
@@ -46,38 +59,45 @@ class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
     end
 
     token = begin
-      ::Utils.safe_popen_read(gh_executable, "auth", "token").strip
+      ::Utils.safe_popen_read(gh, "auth", "token").strip
     rescue ErrorDuringExecution
       ""
     end
     return token if token.presence
 
     raise CurlDownloadStrategyError.new(
-      url, "`#{gh_executable} auth token` gave nothing back: run `gh auth login`, or set " \
+      url, "`#{gh} auth token` gave nothing back: run `gh auth login`, or set " \
            "HOMEBREW_GITHUB_API_TOKEN"
     )
   end
 
+  sig { returns(String) }
   def asset_api_url
     @asset_api_url ||= begin
       json = curl_output("--silent", "--header", "Authorization: token #{token}",
                          "https://api.github.com/repos/#{@owner}/#{@repo}/releases/tags/#{@tag}").stdout
-      asset = JSON.parse(json).fetch("assets", []).find { |a| a["name"] == @asset }
-      raise CurlDownloadStrategyError.new(url, "no asset #{@asset} in release #{@tag}") unless asset
+      assets = T.cast(JSON.parse(json), T::Hash[String, T.untyped]).fetch("assets", [])
+      asset = assets.find { |candidate| candidate["name"] == @asset }
+      raise CurlDownloadStrategyError.new(url, "no asset #{@asset} in release #{@tag}") if asset.nil?
 
       "https://api.github.com/repos/#{@owner}/#{@repo}/releases/assets/#{asset["id"]}"
     end
   end
 
+  sig { override.params(url: String, timeout: T.nilable(T.any(Float, Integer))).returns(URLMetadata) }
   def resolve_url_basename_time_file_size(url, timeout: nil)
     [url, @asset, nil, nil, nil, false]
   end
 
+  sig {
+    override.params(url: String, resolved_url: String, timeout: T.nilable(T.any(Float, Integer)))
+            .returns(T.nilable(SystemCommand::Result))
+  }
   def _fetch(url:, resolved_url:, timeout:)
     head = curl_output("--silent", "--head", "--header", "Accept: application/octet-stream",
                        "--header", "Authorization: token #{token}", asset_api_url, timeout:)
     location = parse_curl_output(head.stdout).fetch(:responses).filter_map { |r| r.fetch(:headers)["location"] }.last
-    raise CurlDownloadStrategyError.new(url, "GitHub did not redirect #{asset_api_url} to the asset") unless location
+    raise CurlDownloadStrategyError.new(url, "GitHub did not redirect #{asset_api_url} to the asset") if location.nil?
 
     _curl_download location, temporary_path, timeout
   end

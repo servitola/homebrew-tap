@@ -25,34 +25,32 @@ cask "glasswings" do
   # no LaunchAgent artifact — so the agent is written here exactly as the repo's
   # install.sh writes it, and `uninstall launchctl:` takes it down on upgrade.
   #
-  # This is the only cask in the tap still on the legacy Ruby block: inside the
-  # `postflight_steps` sandbox `launchctl bootstrap` answers "Bootstrap failed: 5:
-  # Input/output error" (2026-09-06), so bin/publish-app.sh skips the Cask/InstallSteps
-  # cop. When Homebrew drops the block, Glasswings must register its own agent
-  # (SMAppService) at first launch.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Glasswings.app"]
-    plist = "#{Dir.home}/Library/LaunchAgents/app.glasswings.daemon.plist"
-    log = "#{Dir.home}/Library/Logs/glasswings.log"
-    File.write(plist, <<~XML)
+  # It is never loaded with launchctl: inside the install-steps sandbox both `launchctl
+  # bootstrap gui/<uid>` and `launchctl load -w` answer "5: Input/output error", while the
+  # very same plist bootstraps by hand a second later (retested on Homebrew 6.0.22,
+  # 2026-09-09). launchd picks the agent up at the next login on its own; `open` covers
+  # this session, and `uninstall launchctl:` has already booted the previous copy out by
+  # the time these steps run.
+  #
+  # The log path is spelled with {{user}} because {{home}} is not one of the tokens
+  # expanded inside step content — only the step's own `path` understands `base: :home`.
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Glasswings.app"]
+    write_file "Library/LaunchAgents/app.glasswings.daemon.plist", <<~XML, base: :home
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0"><dict>
         <key>Label</key>             <string>app.glasswings.daemon</string>
-        <key>ProgramArguments</key>  <array><string>#{appdir}/Glasswings.app/Contents/MacOS/Glasswings</string></array>
+        <key>ProgramArguments</key>  <array><string>{{appdir}}/Glasswings.app/Contents/MacOS/Glasswings</string></array>
         <key>RunAtLoad</key>         <true/>
         <key>KeepAlive</key>         <true/>
         <key>ProcessType</key>       <string>Adaptive</string>
         <key>LowPriorityIO</key>     <true/>
-        <key>StandardOutPath</key>   <string>#{log}</string>
-        <key>StandardErrorPath</key> <string>#{log}</string>
+        <key>StandardOutPath</key>   <string>/Users/{{user}}/Library/Logs/glasswings.log</string>
+        <key>StandardErrorPath</key> <string>/Users/{{user}}/Library/Logs/glasswings.log</string>
       </dict></plist>
     XML
-    domain = "gui/#{Process.uid}"
-    system_command "/bin/launchctl", args: ["bootout", "#{domain}/app.glasswings.daemon"], must_succeed: false
-    system_command "/bin/launchctl", args: ["bootstrap", domain, plist]
-    system_command "/bin/launchctl", args: ["enable", "#{domain}/app.glasswings.daemon"]
+    run "/usr/bin/open", args: ["-a", "{{appdir}}/Glasswings.app"]
   end
 
   uninstall launchctl: "app.glasswings.daemon"

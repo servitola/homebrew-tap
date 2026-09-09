@@ -1,4 +1,4 @@
-# typed: false
+# typed: strict
 # frozen_string_literal: true
 
 # The release lives in a private repository. GitHub serves private assets only through
@@ -10,6 +10,10 @@
 #
 # Casks reach this with `require_relative "../lib/..."`: a cask file is instance_eval'd
 # with its own path, so the tap's own Ruby loads the same way it would in a formula.
+#
+# `typed: strict` is the sigil Homebrew's rubocop demands of Ruby that is neither a
+# formula nor a cask. Nothing type-checks this file — brew style only reads the level —
+# and a laxer sigil passes locally only because the cop excludes Library/Taps.
 class PrivateGitHubReleaseDownloadStrategy < CurlDownloadStrategy
   def initialize(url, name, version, **meta)
     super

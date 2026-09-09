@@ -35,4 +35,10 @@ cask "forkgram" do
     "~/Library/Preferences/com.tdesktop.Telegram.plist",
     "~/Library/Saved Application State/com.tdesktop.Telegram.savedState",
   ]
+
+  caveats <<~EOS
+    This build is published in a private repository, so every install and upgrade
+    needs a GitHub token that can read it — `gh auth login`, or
+    HOMEBREW_GITHUB_API_TOKEN in the environment.
+  EOS
 end

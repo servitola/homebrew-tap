@@ -73,11 +73,7 @@ sha=$(shasum -a 256 "$work/$zip" | cut -d' ' -f1)
 
 sed -i '' -e "s|^  version \".*\"|  version \"$version\"|" -e "s|^  sha256 \".*\"|  sha256 \"$sha\"|" "$tap/$cask"
 grep -q "version \"$version\"" "$tap/$cask" && grep -q "sha256 \"$sha\"" "$tap/$cask" || { echo "cask bump failed" >&2; exit 1 }
-# brew style ignores a tap-level .rubocop.yml, so the two cops this tap cannot satisfy are
-# skipped here: Lint/DuplicateMethods (forkgram and glasswings each carry the same private
-# download strategy class) and Cask/InstallSteps (glasswings must keep a Ruby postflight,
-# see the cask).
-brew style --except-cops Lint/DuplicateMethods,Cask/InstallSteps "$tap/$cask"
+brew style "$tap/$cask"
 
 gh release create "$tag" -R "$gh_repo" --target "$target" --title "$name $version" \
   --notes "Built from $gh_repo@$target, signed with \"$identity\", not notarized. Install: brew install servitola/tap/$token" \

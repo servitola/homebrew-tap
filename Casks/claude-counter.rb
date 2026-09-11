@@ -18,11 +18,15 @@ cask "claude-counter" do
   app "ClaudeCounter.app"
 
   # Signed with Developer ID, not notarized: Gatekeeper would refuse the quarantined
-  # copy, so the attribute goes the way `--no-quarantine` drops it. A menu-bar app is
-  # expected to be running, so an install or upgrade brings it back up.
+  # copy, so the attribute goes the way `--no-quarantine` drops it.
+  #
+  # A menu-bar app wants to come back up after an upgrade, but not at this price: `open`
+  # inside an install step answers "kLSNoExecutableErr: The executable is missing" for
+  # EVERY app — /System/Applications/Calculator.app included — on Homebrew 6.0.22-304 /
+  # macOS 26.6.2 (2026-09-11), and the step's failure aborts the install and then the
+  # rollback, leaving no app installed at all.
   postflight_steps do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/ClaudeCounter.app"]
-    run "/usr/bin/open", args: ["-a", "{{appdir}}/ClaudeCounter.app"]
   end
 
   uninstall quit: "com.servitola.claudecounter"

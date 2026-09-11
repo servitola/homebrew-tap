@@ -22,10 +22,15 @@ cask "voiceink" do
   # Signed with the self-signed "VoiceInk Local Signing" identity, because the TCC grants
   # (mic, Accessibility, Screen Recording, Input Monitoring, Apple Events) are pinned to
   # its certificate; Gatekeeper would refuse the quarantined copy, so the attribute goes
-  # the way `--no-quarantine` drops it. The app is expected to be running.
+  # the way `--no-quarantine` drops it.
+  #
+  # The app is not launched from here any more. `open` inside an install step answers
+  # "kLSNoExecutableErr: The executable is missing" for EVERY app — /System/Applications/
+  # Calculator.app included — on Homebrew 6.0.22-304 / macOS 26.6.2 (2026-09-11), and the
+  # step's failure aborts the install and then the rollback, which is how a working
+  # VoiceInk disappeared from this machine instead of merely failing to relaunch.
   postflight_steps do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/VoiceInk.app"]
-    run "/usr/bin/open", args: ["-a", "{{appdir}}/VoiceInk.app"]
   end
 
   uninstall quit: "com.prakashjoshipax.VoiceInk"

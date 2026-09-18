@@ -60,14 +60,19 @@ jobs:
         run: brew audit --cask --strict --tap="$TAP_NAME"
 
       # Formulae, unlike the casks, build from a public source tarball, so they get
-      # the full treatment: online audit, install, test. Named one by one: with --tap,
-      # `brew audit --formula --online` still walks the casks and trips over the two
-      # private releases.
+      # the full treatment: online audit, install, test. Named one by one rather than
+      # with --tap: `brew audit --formula --online` walks the casks too and trips over
+      # the two private releases.
       - name: brew audit, install and test formulae
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
         run: |
-          brew audit --strict --online servitola/tap/nowplayingseek
-          brew install --build-from-source servitola/tap/nowplayingseek
-          brew test servitola/tap/nowplayingseek
+          for file in "$(brew --repository "$TAP_NAME")"/Formula/*.rb; do
+            name="$TAP_NAME/$(basename "$file" .rb)"
+            brew audit --strict --online "$name"
+            brew install --build-from-source "$name"
+            brew test "$name"
+          done
 
       # lib/ claims `typed: strict`, so let Sorbet hold it to that. Casks are exempt by
       # Homebrew's own config and there is nothing to check in them anyway.

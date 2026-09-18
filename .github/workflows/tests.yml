@@ -60,12 +60,12 @@ jobs:
         run: brew audit --cask --strict --tap="$TAP_NAME"
 
       # Formulae, unlike the casks, build from a public source tarball, so they get
-      # the full treatment: online audit, install, test.
+      # the full treatment: online audit, install, test. Named one by one: with --tap,
+      # `brew audit --formula --online` still walks the casks and trips over the two
+      # private releases.
       - name: brew audit, install and test formulae
-        env:
-          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
         run: |
-          brew audit --formula --strict --online --tap="$TAP_NAME"
+          brew audit --strict --online servitola/tap/nowplayingseek
           brew install --build-from-source servitola/tap/nowplayingseek
           brew test servitola/tap/nowplayingseek
 

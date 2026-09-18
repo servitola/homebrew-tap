@@ -1,5 +1,5 @@
 class Nowplayingseek < Formula
-  desc "Read the position of and seek whatever is Now Playing"
+  desc "Seek, skip and control whatever is Now Playing on macOS"
   homepage "https://github.com/servitola/nowplayingseek"
   url "https://github.com/servitola/nowplayingseek/archive/refs/tags/v0.3.0.tar.gz"
   sha256 "0703e247f815ec7c6848519aa94e18eca9bbde1b0dc172988ad9a48f4c36cc1b"

@@ -1,8 +1,8 @@
 class Nowplayingseek < Formula
   desc "Read the position of and seek whatever is Now Playing"
   homepage "https://github.com/servitola/nowplayingseek"
-  url "https://github.com/servitola/nowplayingseek/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "ddf45ba416736ac411c4fd2b959bde3e118fbb5cbb1134a322d4f82b242868cb"
+  url "https://github.com/servitola/nowplayingseek/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "06f5a6d33b7c7ac61fb1f1534f0819530053ee34c6513443ae86d5164646c430"
   license "BSD-2-Clause"
   head "https://github.com/servitola/nowplayingseek.git", branch: "main"
 

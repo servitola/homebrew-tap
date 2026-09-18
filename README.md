@@ -4,7 +4,8 @@
 
 # homebrew-tap
 
-My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks.
+My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks, plus
+the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
 [![casks](https://img.shields.io/badge/casks-7-brightgreen)](Casks)
@@ -47,10 +48,17 @@ Nothing here is notarized, so every cask drops the quarantine attribute after
 install — what `--no-quarantine` does. Signing is Developer ID, except `voiceink`
 (self-signed identity its TCC grants are pinned to) and `zen` (ad-hoc).
 
+## Formulae
+
+| Name | What | Source |
+| --- | --- | --- |
+| `nowplayingseek` | Read the position of and seek whatever macOS considers Now Playing | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
+
 ## Layout
 
 ```
 Casks/       one cask per app
+Formula/     one formula per command-line tool
 lib/         Ruby shared by casks, reached with require_relative
 bin/         the publisher and the two on-demand release scripts
 .github/     brew test-bot on every push to main

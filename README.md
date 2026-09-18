@@ -53,7 +53,7 @@ install — what `--no-quarantine` does. Signing is Developer ID, except `voicei
 
 | Name | What | Source |
 | --- | --- | --- |
-| `nowplayingseek` | Read the position of and seek whatever macOS considers Now Playing | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
+| `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
 
 ## Layout
 

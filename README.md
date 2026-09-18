@@ -9,6 +9,7 @@ the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
 [![casks](https://img.shields.io/badge/casks-7-brightgreen)](Casks)
+[![formulae](https://img.shields.io/badge/formulae-1-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
 </div>
@@ -107,3 +108,18 @@ Install steps run in a sandbox, which shapes what a cask can do at install time:
 inside step content (`{{user}}`, `{{appdir}}` and `{{version}}` are), and
 `launchctl bootstrap`/`load` answer `5: Input/output error` there while the same
 plist loads by hand — see the comment in `Casks/glasswings.rb`.
+
+## Adding a formula
+
+Write `Formula/<name>.rb` pointing `url` at the source tarball of a tag, then:
+
+```bash
+brew style Formula
+brew audit --formula --strict --online servitola/tap/<name>
+brew install --build-from-source servitola/tap/<name> && brew test servitola/tap/<name>
+```
+
+No `livecheck` block: for a GitHub `archive/refs/tags/` url the default strategy already
+reads the repository's tags. CI runs all three commands above for every `Formula/*.rb`,
+which is the whole difference from the casks — a formula builds from public source, so
+the runner can actually install and test it.

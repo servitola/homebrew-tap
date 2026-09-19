@@ -1,8 +1,8 @@
 class Nowplayingseek < Formula
   desc "Seek, skip and control whatever is Now Playing on macOS"
   homepage "https://github.com/servitola/nowplayingseek"
-  url "https://github.com/servitola/nowplayingseek/archive/refs/tags/v0.6.1.tar.gz"
-  sha256 "25cac0843b3a3c4be3e3371e6291cf69d9b5fff1c7940f4b025e599d366f9e3d"
+  url "https://github.com/servitola/nowplayingseek/archive/refs/tags/v0.7.0.tar.gz"
+  sha256 "f63a3c74a9e139c4c86d4080b35f6f2b2c2e781df2e84a8d7d33df9e31db7e44"
   license "AGPL-3.0-only"
   head "https://github.com/servitola/nowplayingseek.git", branch: "main"
 

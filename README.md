@@ -8,7 +8,7 @@ My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks,
 the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
-[![casks](https://img.shields.io/badge/casks-7-brightgreen)](Casks)
+[![casks](https://img.shields.io/badge/casks-8-brightgreen)](Casks)
 [![formulae](https://img.shields.io/badge/formulae-1-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
@@ -33,13 +33,15 @@ in future — which is a promise about code that has not been written yet.
 | `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal) |
 | `voiceink` | VoiceInk (voice to text) + personal patches | nightly | [VoiceInk](https://github.com/servitola/VoiceInk) |
 | `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser) |
+| `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch) |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter) |
 | `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings) 🔒 |
 
 Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
-on purpose — same app, my build. In a Brewfile write `cask "servitola/tap/zen"`: a
-bare token pulls the core cask over my build. `zap-terminal` is not `zap`, which is
-OWASP ZAP upstream.
+on purpose — same app, my build; `boring-notch` is the same token as in the
+upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile write
+`cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
+`zap-terminal` is not `zap`, which is OWASP ZAP upstream.
 
 🔒 = the release lives in a private repository. Those casks resolve the asset
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),

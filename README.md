@@ -83,7 +83,7 @@ has on GitHub.
 | --- | --- |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
 | Glasswings | `bin/release-glasswings.sh <version>` |
-| yt-dlp-puzzle-movies | `bin/release-yt-dlp-puzzle-movies.sh <version>`: tags, releases, points the formula at the tag's tarball |
+| yt-dlp-puzzle-movies | `make release` in its own repository (`scripts/release.sh`) |
 | Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
 The script-driven tags (Claude Counter, Glasswings, yt-dlp-puzzle-movies) are pushed to origin, not

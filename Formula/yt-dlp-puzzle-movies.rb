@@ -1,8 +1,8 @@
 class YtDlpPuzzleMovies < Formula
   desc "Plugin for yt-dlp that downloads series and films from puzzle-movies.com"
   homepage "https://github.com/servitola/yt-dlp-puzzle-movies"
-  url "https://github.com/servitola/yt-dlp-puzzle-movies/archive/refs/tags/v2026.09.24.3.tar.gz"
-  sha256 "2b599a8d5911b751cf32c150e6f3edaaf8b672db1314705880df5eb659904ed1"
+  url "https://github.com/servitola/yt-dlp-puzzle-movies/archive/refs/tags/v2026.09.24.5.tar.gz"
+  sha256 "eb61524ffa8733e441dc70e83e6b45a4dfd5b9c7d0a577883f94b996965fd34d"
   license "MIT"
   head "https://github.com/servitola/yt-dlp-puzzle-movies.git", branch: "main"
 

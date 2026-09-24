@@ -9,7 +9,7 @@ the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
 [![casks](https://img.shields.io/badge/casks-8-brightgreen)](Casks)
-[![formulae](https://img.shields.io/badge/formulae-1-brightgreen)](Formula)
+[![formulae](https://img.shields.io/badge/formulae-2-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
 </div>
@@ -43,7 +43,7 @@ upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile wri
 `cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
 `zap-terminal` is not `zap`, which is OWASP ZAP upstream.
 
-🔒 = the release lives in a private repository. Those casks resolve the asset
+🔒 = the release lives in a private repository. Those casks and formulae resolve the asset
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
@@ -56,14 +56,15 @@ install — what `--no-quarantine` does. Signing is Developer ID, except `voicei
 | Name | What | Source |
 | --- | --- | --- |
 | `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
+| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com; symlink it into `~/.config/yt-dlp/plugins` as the caveats say | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) 🔒 |
 
 ## Layout
 
 ```
 Casks/       one cask per app
 Formula/     one formula per command-line tool
-lib/         Ruby shared by casks, reached with require_relative
-bin/         the publisher and the two on-demand release scripts
+lib/         Ruby shared by casks and formulae, reached with require_relative
+bin/         the publisher and the on-demand release scripts
 .github/     brew test-bot on every push to main
 ```
 
@@ -82,9 +83,10 @@ has on GitHub.
 | --- | --- |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
 | Glasswings | `bin/release-glasswings.sh <version>` |
+| yt-dlp-puzzle-movies | `bin/release-yt-dlp-puzzle-movies.sh <YYYY.MM.DD>`: source tarball as the release asset, bumps the formula |
 | Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
-The two script-driven tags (Claude Counter, Glasswings) are pushed to origin, not
+The script-driven tags (Claude Counter, Glasswings, yt-dlp-puzzle-movies) are pushed to origin, not
 GitHub: the mirror runs `--mirror --force` and would delete a tag made upstream.
 The same force-mirror is why CI here only reads: a merged pull request or a
 Dependabot bump on GitHub would be erased by the next sync, so the action pins in
@@ -124,4 +126,6 @@ brew install --build-from-source servitola/tap/<name> && brew test servitola/tap
 No `livecheck` block: for a GitHub `archive/refs/tags/` url the default strategy already
 reads the repository's tags. CI runs all three commands above for every `Formula/*.rb`,
 which is the whole difference from the casks — a formula builds from public source, so
-the runner can actually install and test it.
+the runner can actually install and test it. A formula whose `url` goes through
+`PrivateGitHubReleaseDownloadStrategy` is the exception: no CI token reaches it, so CI
+skips it — install and `brew test` it locally after a release.

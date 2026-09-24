@@ -1,17 +1,10 @@
-require_relative "../lib/private_github_release_download_strategy"
-
 class YtDlpPuzzleMovies < Formula
   desc "Plugin for yt-dlp that downloads series and films from puzzle-movies.com"
-  homepage "https://github.com/servitola/homebrew-tap"
-  url "https://github.com/servitola/yt-dlp-puzzle-movies/releases/download/v2026.09.24/yt-dlp-puzzle-movies-2026.09.24.tar.gz",
-      using: PrivateGitHubReleaseDownloadStrategy
-  sha256 "7d5f09ce1b76b4ee379f7c09bff3d548d2e7e759c69edd66edcf6c0b01ea8a18"
-  revision 1
-
-  livecheck do
-    url :url
-    strategy :github_latest
-  end
+  homepage "https://github.com/servitola/yt-dlp-puzzle-movies"
+  url "https://github.com/servitola/yt-dlp-puzzle-movies/archive/refs/tags/v2026.09.24.1.tar.gz"
+  sha256 "fdcfe293fdc019c9a14af8d57f8dd88b7f5e959f68594e1f1c4d81d75301afb8"
+  license "Unlicense"
+  head "https://github.com/servitola/yt-dlp-puzzle-movies.git", branch: "main"
 
   depends_on "yt-dlp"
 

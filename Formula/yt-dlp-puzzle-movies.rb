@@ -6,6 +6,7 @@ class YtDlpPuzzleMovies < Formula
   url "https://github.com/servitola/yt-dlp-puzzle-movies/releases/download/v2026.09.24/yt-dlp-puzzle-movies-2026.09.24.tar.gz",
       using: PrivateGitHubReleaseDownloadStrategy
   sha256 "7d5f09ce1b76b4ee379f7c09bff3d548d2e7e759c69edd66edcf6c0b01ea8a18"
+  revision 1
 
   livecheck do
     url :url
@@ -14,21 +15,16 @@ class YtDlpPuzzleMovies < Formula
 
   depends_on "yt-dlp"
 
+  # yt-dlp's virtualenv includes system site-packages, so a plugin linked into
+  # HOMEBREW_PREFIX/lib/pythonX.Y/site-packages is on its sys.path and loads with no
+  # further setup. X.Y follows whichever python@ yt-dlp is built on: when that moves,
+  # this formula needs a revision bump to reinstall under the new path.
   def install
-    libexec.install "yt_dlp_plugins"
-  end
-
-  def caveats
-    <<~EOS
-      yt-dlp finds plugins only under ~/.config/yt-dlp/plugins, where a formula cannot write:
-        mkdir -p ~/.config/yt-dlp/plugins
-        ln -sfn #{opt_libexec} ~/.config/yt-dlp/plugins/yt-dlp-puzzle-movies
-    EOS
+    python = Formula["yt-dlp"].deps.map(&:to_formula).find { |dep| dep.name.start_with?("python@") }
+    (lib/"python#{python.version.major_minor}/site-packages").install "yt_dlp_plugins"
   end
 
   test do
-    (testpath/".config/yt-dlp/plugins").mkpath
-    ln_s libexec, testpath/".config/yt-dlp/plugins/yt-dlp-puzzle-movies"
     # Without a URL yt-dlp exits 2, but the -v header has already listed the plugins it loaded.
     output = shell_output("#{formula_opt_bin("yt-dlp")}/yt-dlp -v 2>&1", 2)
     assert_match "Extractor Plugins: PuzzleMoviesIE", output

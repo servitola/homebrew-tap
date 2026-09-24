@@ -56,7 +56,7 @@ install — what `--no-quarantine` does. Signing is Developer ID, except `voicei
 | Name | What | Source |
 | --- | --- | --- |
 | `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
-| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com; symlink it into `~/.config/yt-dlp/plugins` as the caveats say | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) 🔒 |
+| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) 🔒 |
 
 ## Layout
 

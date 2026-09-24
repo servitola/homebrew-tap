@@ -29,8 +29,16 @@ done
 [[ $(gh api "repos/$gh_repo/commits/$tag" -q .sha 2>/dev/null) == "$head" ]] ||
   { echo "GitHub did not receive $tag from the mirror" >&2; exit 1 }
 
+# yt-dlp loads a zip with yt_dlp_plugins/ at its root straight from its plugins folder,
+# which GitHub's own "Source code" archive is not: that one nests everything a level down.
+# No version in the asset name, so releases/latest/download/<name> stays a stable link.
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+git -C "$src" archive --format=zip -o "$work/yt-dlp-puzzle-movies.zip" "$tag" yt_dlp_plugins
+
 gh release create "$tag" -R "$gh_repo" --verify-tag --title "yt-dlp-puzzle-movies $version" \
-  --notes "Install: brew install servitola/tap/yt-dlp-puzzle-movies"
+  --notes "Homebrew: \`brew install servitola/tap/yt-dlp-puzzle-movies\`. Any other yt-dlp: put yt-dlp-puzzle-movies.zip into ~/.config/yt-dlp/plugins/ as is." \
+  "$work/yt-dlp-puzzle-movies.zip"
 
 url="https://github.com/$gh_repo/archive/refs/tags/$tag.tar.gz"
 sha=$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)

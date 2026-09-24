@@ -43,7 +43,7 @@ upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile wri
 `cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
 `zap-terminal` is not `zap`, which is OWASP ZAP upstream.
 
-🔒 = the release lives in a private repository. Those casks and formulae resolve the asset
+🔒 = the release lives in a private repository. Those casks resolve the asset
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
@@ -56,14 +56,14 @@ install — what `--no-quarantine` does. Signing is Developer ID, except `voicei
 | Name | What | Source |
 | --- | --- | --- |
 | `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
-| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) 🔒 |
+| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) |
 
 ## Layout
 
 ```
 Casks/       one cask per app
 Formula/     one formula per command-line tool
-lib/         Ruby shared by casks and formulae, reached with require_relative
+lib/         Ruby shared by casks, reached with require_relative
 bin/         the publisher and the on-demand release scripts
 .github/     brew test-bot on every push to main
 ```
@@ -83,7 +83,7 @@ has on GitHub.
 | --- | --- |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
 | Glasswings | `bin/release-glasswings.sh <version>` |
-| yt-dlp-puzzle-movies | `bin/release-yt-dlp-puzzle-movies.sh <YYYY.MM.DD>`: source tarball as the release asset, bumps the formula |
+| yt-dlp-puzzle-movies | `bin/release-yt-dlp-puzzle-movies.sh <version>`: tags, releases, points the formula at the tag's tarball |
 | Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
 The script-driven tags (Claude Counter, Glasswings, yt-dlp-puzzle-movies) are pushed to origin, not
@@ -126,6 +126,4 @@ brew install --build-from-source servitola/tap/<name> && brew test servitola/tap
 No `livecheck` block: for a GitHub `archive/refs/tags/` url the default strategy already
 reads the repository's tags. CI runs all three commands above for every `Formula/*.rb`,
 which is the whole difference from the casks — a formula builds from public source, so
-the runner can actually install and test it. A formula whose `url` goes through
-`PrivateGitHubReleaseDownloadStrategy` is the exception: no CI token reaches it, so CI
-skips it — install and `brew test` it locally after a release.
+the runner can actually install and test it.

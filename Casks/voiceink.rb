@@ -1,7 +1,7 @@
 # Same token as homebrew/cask's voiceink on purpose: same app, our fork's build (see README).
 cask "voiceink" do
-  version "2.13-20260911.5272424"
-  sha256 "1d4b95d2bdb8b17e648bd4030b768d862a1b8e358305e831ae958e85a4b874a9"
+  version "2.20-20260926.2beff03"
+  sha256 "ca6dd399b53662567c22bd72957c32f5fa20682800975ee92b469ef41be68351"
 
   url "https://github.com/servitola/VoiceInk/releases/download/v#{version}/VoiceInk-#{version}.zip"
   name "VoiceInk"

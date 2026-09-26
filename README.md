@@ -8,7 +8,7 @@ My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks,
 the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
-[![casks](https://img.shields.io/badge/casks-8-brightgreen)](Casks)
+[![casks](https://img.shields.io/badge/casks-9-brightgreen)](Casks)
 [![formulae](https://img.shields.io/badge/formulae-2-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
@@ -36,6 +36,7 @@ in future — which is a promise about code that has not been written yet.
 | `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch) |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter) |
 | `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings) 🔒 |
+| `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq) |
 
 Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
 on purpose — same app, my build; `boring-notch` is the same token as in the

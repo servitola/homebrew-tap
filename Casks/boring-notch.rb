@@ -5,7 +5,7 @@ cask "boring-notch" do
   version "2.7.3-20260922.30f6247"
   sha256 "f492543d56d875280c1898de65e3c3125b666733487db4b772f688359674745b"
 
-  url "https://github.com/servitola/boring-notch/releases/download/v#{version}/boringNotch-#{version}.zip"
+  url "https://github.com/servitola/boring-notch/releases/download/v#{version}/BoringNotch-#{version}.zip"
   name "TheBoringNotch"
   desc "Notch companion, personal fork built nightly from TheBoredTeam/boring.notch"
   homepage "https://github.com/servitola/boring-notch"
@@ -18,7 +18,9 @@ cask "boring-notch" do
 
   depends_on macos: :sonoma
 
-  app "boringNotch.app"
+  # Upstream renamed the bundle from boringNotch.app on 2026-09-25; bundle id is unchanged,
+  # so settings and TCC grants carry over.
+  app "Boring Notch.app"
 
   # Signed with Developer ID, not notarized: Gatekeeper would refuse the quarantined
   # copy, so the attribute goes the way `--no-quarantine` drops it. The identity is
@@ -26,7 +28,7 @@ cask "boring-notch" do
   # Apple Events grants are pinned to it, and an ad-hoc signature would drop them
   # silently on every nightly.
   postflight_steps do
-    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/boringNotch.app"]
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Boring Notch.app"]
   end
 
   # No `auto_updates true`: the fork's Sparkle feed is our own and publishes nothing,

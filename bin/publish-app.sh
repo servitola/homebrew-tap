@@ -4,7 +4,7 @@
 #          [--identity "<name or sha1>"] [--entitlements plist] [--hardened] [--strip]
 #          [--tag v<version>] [--target main] [--no-push]
 # The tag is created on --target, so that ref on GitHub must already be the commit that
-# was built. Asset name: <App>-<version>.zip.
+# was built. Asset name: <App without spaces>-<version>.zip.
 set -euo pipefail
 
 tap=${0:a:h:h}
@@ -27,7 +27,9 @@ done
 : ${tag:=v$version}
 cask=Casks/$token.rb
 name=${app:t:r}
-zip=$name-$version.zip
+# GitHub turns spaces in an asset name into dots, so a cask url built from the app name
+# would miss the asset ("Boring Notch.app" -> Boring.Notch-<v>.zip). Drop them up front.
+zip=${name// /}-$version.zip
 
 [[ -d $app ]] || { echo "no app bundle at $app" >&2; exit 1 }
 [[ -f $tap/$cask ]] || { echo "no cask $tap/$cask" >&2; exit 1 }

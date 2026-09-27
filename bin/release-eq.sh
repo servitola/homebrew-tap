@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
-# Tag, build, sign and publish eq through publish-app.sh.
+# Build, sign and smoke eq, then tag it and publish through publish-app.sh; a failed build or
+# smoke leaves no tag. The running com.servitola.eq agent is parked for the smoke and restored
+# on exit, whether the release succeeds or not.
 # Usage: bin/release-eq.sh <version>      (CalVer, e.g. 2026.09.27)
 # The version must have its own "## <version> — <date>" section in the checkout's CHANGELOG.md;
 # that section becomes the GitHub release notes.
@@ -19,12 +21,23 @@ git -C "$src" fetch -q origin
 git -C "$src" rev-parse -q --verify "refs/tags/$tag" >/dev/null && { echo "tag $tag already exists" >&2; exit 1 }
 
 notes=$(mktemp)
-trap 'rm -f "$notes"' EXIT
+agent=gui/$UID/com.servitola.eq
+plist=$HOME/Library/LaunchAgents/com.servitola.eq.plist
+parked=0
+trap 'rm -f "$notes"; (( parked )) && launchctl bootstrap gui/$UID "$plist" 2>/dev/null || true' EXIT
 awk -v v="$version" '
   /^## / { on = index($0, "## " v " ") == 1 }
   on && !/^## / { print }
 ' "$src/CHANGELOG.md" | sed -e '1{/^$/d;}' > "$notes"
 [[ -s $notes ]] || { echo "CHANGELOG.md has no section for $version" >&2; exit 1 }
+
+APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
+# The smoke refuses to start next to a live daemon: two taps on one device would stack.
+if launchctl print "$agent" >/dev/null 2>&1; then
+  launchctl bootout "$agent"; parked=1
+  for _ in {1..25}; do pgrep -f 'MacOS/eq daemon' >/dev/null || break; sleep 0.2; done
+fi
+EQ_SMOKE_TONE=1 "$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"
 
 git -C "$src" tag -a "$tag" -m "eq $version"
 git -C "$src" push -q origin "$tag"
@@ -37,7 +50,5 @@ done
 [[ $(gh api "repos/servitola/eq/commits/$tag" -q .sha 2>/dev/null) == "$head" ]] ||
   { echo "GitHub did not receive $tag from the mirror" >&2; exit 1 }
 
-APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
-"$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"
 "${0:a:h}/publish-app.sh" eq servitola/eq "$version" "$src/build/EQ.app" \
   --hardened --entitlements "$src/Resources/eq.entitlements" --tag "$tag" --notes-file "$notes"

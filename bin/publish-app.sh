@@ -2,14 +2,14 @@
 # Sign an .app, attach it to a GitHub release, bump the cask, commit, push.
 # Usage: bin/publish-app.sh <cask-token> <owner/repo> <version> <path/to/App.app>
 #          [--identity "<name or sha1>"] [--entitlements plist] [--hardened] [--strip]
-#          [--tag v<version>] [--target main] [--no-push]
+#          [--tag v<version>] [--target main] [--no-push] [--notes-file path]
 # The tag is created on --target, so that ref on GitHub must already be the commit that
 # was built. Asset name: <App without spaces>-<version>.zip.
 set -euo pipefail
 
 tap=${0:a:h:h}
 identity="Developer ID Application: Vladislav Konovalov (NZNV266K59)"
-entitlements= hardened=0 strip=0 tag= target=main push=1
+entitlements= hardened=0 strip=0 tag= target=main push=1 notes_file=
 (( $# >= 4 )) || { sed -n '2,7p' "$0" >&2; exit 2 }
 token=$1 gh_repo=$2 version=$3 app=${4:a}; shift 4
 while (( $# )); do
@@ -21,6 +21,7 @@ while (( $# )); do
     --tag) tag=$2; shift 2 ;;
     --target) target=$2; shift 2 ;;
     --no-push) push=0; shift ;;
+    --notes-file) notes_file=$2; shift 2 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -77,9 +78,15 @@ sed -i '' -e "s|^  version \".*\"|  version \"$version\"|" -e "s|^  sha256 \".*\
 grep -q "version \"$version\"" "$tap/$cask" && grep -q "sha256 \"$sha\"" "$tap/$cask" || { echo "cask bump failed" >&2; exit 1 }
 brew style "$tap/$cask"
 
-gh release create "$tag" -R "$gh_repo" --target "$target" --title "$name $version" \
-  --notes "Built from $gh_repo@$target, signed with \"$identity\", not notarized. Install: brew install servitola/tap/$token" \
-  "$work/$zip"
+footer="Built from $gh_repo@$target, signed with \"$identity\", not notarized. Install: brew install servitola/tap/$token"
+if [[ -n $notes_file ]]; then
+  [[ -f $notes_file ]] || { echo "no notes file $notes_file" >&2; exit 1 }
+  { cat "$notes_file"; echo; echo "$footer"; } > "$work/notes.md"
+  notes=(--notes-file "$work/notes.md")
+else
+  notes=(--notes "$footer")
+fi
+gh release create "$tag" -R "$gh_repo" --target "$target" --title "$name $version" "${notes[@]}" "$work/$zip"
 
 git -C "$tap" add "$cask"
 git -C "$tap" commit -q -m "$token $version"

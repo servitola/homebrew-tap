@@ -1,7 +1,7 @@
 # Token is not "zap": that is OWASP Zed Attack Proxy in homebrew/cask.
 cask "zap-terminal" do
-  version "0.1.0-20260905.5d87445"
-  sha256 "eee1c38fba5ad84cd7c373325a0f76d52afe6819b3c162113c5e7a62ad899db0"
+  version "0.1.0-20260928.8954864"
+  sha256 "c431ad5d83ab18d40de7c77ec38c520a5901aa744bd98633622ad24b8d7e045b"
 
   url "https://github.com/servitola/zap-terminal/releases/download/v#{version}/Zap-#{version}.zip"
   name "Zap"

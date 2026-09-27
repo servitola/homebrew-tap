@@ -24,7 +24,12 @@ notes=$(mktemp)
 agent=gui/$UID/com.servitola.eq
 plist=$HOME/Library/LaunchAgents/com.servitola.eq.plist
 parked=0
-trap 'rm -f "$notes"; (( parked )) && launchctl bootstrap gui/$UID "$plist" 2>/dev/null || true' EXIT
+trap '
+  rm -f "$notes"
+  if (( parked )); then
+    launchctl bootstrap gui/$UID "$plist" 2>/dev/null || echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2
+  fi
+' EXIT
 awk -v v="$version" '
   /^## / { on = index($0, "## " v " ") == 1 }
   on && !/^## / { print }
@@ -38,6 +43,9 @@ if launchctl print "$agent" >/dev/null 2>&1; then
   for _ in {1..25}; do pgrep -f 'MacOS/eq daemon' >/dev/null || break; sleep 0.2; done
 fi
 EQ_SMOKE_TONE=1 "$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"
+if (( parked )); then
+  launchctl bootstrap gui/$UID "$plist" && parked=0 || echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2
+fi
 
 git -C "$src" tag -a "$tag" -m "eq $version"
 git -C "$src" push -q origin "$tag"

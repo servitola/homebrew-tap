@@ -28,6 +28,14 @@ awk -v v="$version" '
 
 git -C "$src" tag -a "$tag" -m "eq $version"
 git -C "$src" push -q origin "$tag"
+# origin is gitea; its push mirror carries the tag to GitHub, where the release is made.
+head=$(git -C "$src" rev-parse "$tag^{commit}")
+for _ in {1..12}; do
+  [[ $(gh api "repos/servitola/eq/commits/$tag" -q .sha 2>/dev/null) == "$head" ]] && break
+  sleep 5
+done
+[[ $(gh api "repos/servitola/eq/commits/$tag" -q .sha 2>/dev/null) == "$head" ]] ||
+  { echo "GitHub did not receive $tag from the mirror" >&2; exit 1 }
 
 APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
 "$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"

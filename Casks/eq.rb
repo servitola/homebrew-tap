@@ -23,8 +23,11 @@ cask "eq" do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/EQ.app"]
   end
 
+  uninstall launchctl: "com.servitola.eq"
+
   zap trash: [
     "~/.cache/eq",
     "~/.config/eq",
+    "~/Library/LaunchAgents/com.servitola.eq.plist",
   ]
 end

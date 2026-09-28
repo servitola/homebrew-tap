@@ -1,7 +1,10 @@
 #!/usr/bin/env zsh
 # Build, sign and smoke eq, then tag it and publish through publish-app.sh; a failed build or
-# smoke leaves no tag. The running com.servitola.eq agent is parked for the smoke and restored
-# on exit, whether the release succeeds or not.
+# smoke leaves no tag. The running com.servitola.eq agent is booted out for the smoke and
+# restored on exit, whether the release succeeds or not: a hand-installed plist through launchctl
+# bootstrap, the bundled login item through the installed eq agent install (an SMAppService job
+# has no plist path to bootstrap from). The login item stays registered while parked, and an eq
+# command leaves a registered-but-unloaded item alone, so nothing restarts the daemon mid-smoke.
 # Usage: bin/release-eq.sh <version>      (CalVer, e.g. 2026.09.27)
 # The version must have its own "## <version> — <date>" section in the checkout's CHANGELOG.md;
 # that section becomes the GitHub release notes.
@@ -25,13 +28,21 @@ git -C "${0:a:h:h}" diff --quiet -- Casks/eq.rb || { echo "Casks/eq.rb has uncom
 notes=$(mktemp)
 agent=gui/$UID/com.servitola.eq
 plist=$HOME/Library/LaunchAgents/com.servitola.eq.plist
-parked=0
-trap '
-  rm -f "$notes"
-  if (( parked )); then
-    launchctl bootstrap gui/$UID "$plist" 2>/dev/null || echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2
-  fi
-' EXIT
+installed=/Applications/EQ.app/Contents/MacOS/eq
+parked=
+restore() {
+  case $parked in
+    legacy) launchctl bootstrap gui/$UID "$plist" 2>/dev/null ||
+              echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2 ;;
+    bundled) "$installed" agent install >/dev/null ||
+              echo "warning: could not restore com.servitola.eq — run: $installed agent install" >&2 ;;
+  esac
+  parked=
+}
+trap 'rm -f "$notes"; restore' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 awk -v v="$version" '
   /^## / { on = index($0, "## " v " ") == 1 }
   on && !/^## / { print }
@@ -40,14 +51,14 @@ awk -v v="$version" '
 
 APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
 # The smoke refuses to start next to a live daemon: two taps on one device would stack.
-if launchctl print "$agent" >/dev/null 2>&1; then
-  launchctl bootout "$agent"; parked=1
+if job=$(launchctl print "$agent" 2>/dev/null); then
+  kind=legacy
+  [[ $job == *"managed_by = com.apple.xpc.ServiceManagement"* ]] && kind=bundled
+  launchctl bootout "$agent"; parked=$kind
   for _ in {1..25}; do pgrep -f 'MacOS/eq daemon' >/dev/null || break; sleep 0.2; done
 fi
 EQ_SMOKE_TONE=1 "$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"
-if (( parked )); then
-  launchctl bootstrap gui/$UID "$plist" && parked=0 || echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2
-fi
+restore
 
 git -C "$src" tag -a "$tag" -m "eq $version"
 git -C "$src" push -q origin "$tag"

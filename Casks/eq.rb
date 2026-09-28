@@ -1,6 +1,6 @@
 cask "eq" do
-  version "2026.09.28.7"
-  sha256 "0b93cb5001cf02e67809980c6625c7367979aa27eeab137c5446fc269f54e1d0"
+  version "2026.09.28.8"
+  sha256 "900e8f2a1ba435834943309217a4f3529b777e02a8d0b5076542880c78474a68"
 
   url "https://github.com/servitola/eq/releases/download/v#{version}/EQ-#{version}.zip"
   name "eq"

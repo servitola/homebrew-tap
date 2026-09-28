@@ -19,6 +19,8 @@ tag=v$version
 git -C "$src" fetch -q origin
 [[ $(git -C "$src" rev-parse HEAD) == $(git -C "$src" rev-parse origin/main) ]] || { echo "main is not pushed to origin" >&2; exit 1 }
 git -C "$src" rev-parse -q --verify "refs/tags/$tag" >/dev/null && { echo "tag $tag already exists" >&2; exit 1 }
+# publish-app.sh refuses a dirty cask, and by then the tag is already pushed.
+git -C "${0:a:h:h}" diff --quiet -- Casks/eq.rb || { echo "Casks/eq.rb has uncommitted changes" >&2; exit 1 }
 
 notes=$(mktemp)
 agent=gui/$UID/com.servitola.eq

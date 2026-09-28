@@ -1,10 +1,11 @@
 #!/usr/bin/env zsh
 # Build, sign and smoke eq, then tag it and publish through publish-app.sh; a failed build or
-# smoke leaves no tag. The running com.servitola.eq agent is booted out for the smoke and
-# restored on exit, whether the release succeeds or not: a hand-installed plist through launchctl
-# bootstrap, the bundled login item through the installed eq agent install (an SMAppService job
-# has no plist path to bootstrap from). The login item stays registered while parked, and an eq
-# command leaves a registered-but-unloaded item alone, so nothing restarts the daemon mid-smoke.
+# smoke leaves no tag. Whichever eq daemon job is loaded is booted out for the smoke and restored
+# on exit, whether the release succeeds or not: the legacy com.servitola.eq through launchctl
+# bootstrap of the plist it was loaded from, the bundled com.servitola.eq.daemon through the
+# installed eq agent install (an SMAppService job has no plist path to bootstrap from). The login
+# item stays registered while parked, and an eq command leaves a registered-but-unloaded item
+# alone, so nothing restarts the daemon mid-smoke.
 # Usage: bin/release-eq.sh <version>      (CalVer, e.g. 2026.09.27)
 # The version must have its own "## <version> — <date>" section in the checkout's CHANGELOG.md;
 # that section becomes the GitHub release notes.
@@ -26,18 +27,22 @@ git -C "$src" rev-parse -q --verify "refs/tags/$tag" >/dev/null && { echo "tag $
 git -C "${0:a:h:h}" diff --quiet -- Casks/eq.rb || { echo "Casks/eq.rb has uncommitted changes" >&2; exit 1 }
 
 notes=$(mktemp)
-agent=gui/$UID/com.servitola.eq
-plist=$HOME/Library/LaunchAgents/com.servitola.eq.plist
+legacy=com.servitola.eq
+bundled=com.servitola.eq.daemon
+plist=$HOME/Library/LaunchAgents/$legacy.plist
 installed=/Applications/EQ.app/Contents/MacOS/eq
-parked=
+parked=()
 restore() {
-  case $parked in
-    legacy) launchctl bootstrap gui/$UID "$plist" 2>/dev/null ||
-              echo "warning: could not restore com.servitola.eq — run: launchctl bootstrap gui/\$UID $plist" >&2 ;;
-    bundled) "$installed" agent install >/dev/null ||
-              echo "warning: could not restore com.servitola.eq — run: $installed agent install" >&2 ;;
-  esac
-  parked=
+  local label
+  for label in $parked; do
+    case $label in
+      $legacy) launchctl bootstrap gui/$UID "$plist" 2>/dev/null ||
+                 echo "warning: could not restore $legacy — run: launchctl bootstrap gui/\$UID $plist" >&2 ;;
+      $bundled) "$installed" agent install >/dev/null ||
+                 echo "warning: could not restore $bundled — run: $installed agent install" >&2 ;;
+    esac
+  done
+  parked=()
 }
 trap 'rm -f "$notes"; restore' EXIT
 trap 'exit 129' HUP
@@ -51,10 +56,17 @@ awk -v v="$version" '
 
 APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
 # The smoke refuses to start next to a live daemon: two taps on one device would stack.
-if job=$(launchctl print "$agent" 2>/dev/null); then
-  kind=legacy
-  [[ $job == *"managed_by = com.apple.xpc.ServiceManagement"* ]] && kind=bundled
-  launchctl bootout "$agent"; parked=$kind
+for label in $legacy $bundled; do
+  job=$(launchctl print gui/$UID/$label 2>/dev/null) || continue
+  if [[ $label == $legacy ]]; then
+    # The plist it was loaded from, which need not be the one in ~/Library/LaunchAgents.
+    loaded_from=${${(M)${(f)job}:#$'\t'path = /*}#*= }
+    [[ -n $loaded_from ]] && plist=$loaded_from
+  fi
+  launchctl bootout gui/$UID/$label
+  parked+=($label)
+done
+if (( $#parked )); then
   for _ in {1..25}; do pgrep -f 'MacOS/eq daemon' >/dev/null || break; sleep 0.2; done
 fi
 EQ_SMOKE_TONE=1 "$src/scripts/smoke.sh" "$src/build/EQ.app/Contents/MacOS/eq"

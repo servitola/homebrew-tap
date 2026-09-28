@@ -23,15 +23,49 @@ cask "eq" do
   fish_completion "#{appdir}/EQ.app/Contents/Resources/completions/eq.fish"
 
   # Signed with Developer ID, not notarized: Gatekeeper would refuse the quarantined copy.
+  #
+  # EQ.app carries its LaunchAgent and registers it through SMAppService (`eq agent install`);
+  # any `eq` command would do it too, this just starts the daemon without waiting for one.
+  # Through `open`, not by running the binary: install steps run in Homebrew's sandbox, where
+  # launchd answers "5: Input/output error" (see glasswings.rb), while LaunchServices starts
+  # the process outside it. `-n` because the running daemon is EQ.app too, and LaunchServices
+  # would only reactivate it. `open` hides eq's output, so it goes to files in the staged path
+  # (per user; a fixed /tmp name could be planted as a symlink) and is printed from there. `-W`
+  # waits for eq; when eq exits before `open` can block, the files are complete anyway.
+  # A legacy ~/Library/LaunchAgents plist makes eq refuse, and says so.
   postflight_steps do
     run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/EQ.app"]
+    run "/usr/bin/open", args:         ["-n", "-g", "-W", "-a", "{{appdir}}/EQ.app",
+                                        "--stdout", "{{staged_path}}/agent-install.out",
+                                        "--stderr", "{{staged_path}}/agent-install.err",
+                                        "--args", "agent", "install"],
+                         must_succeed: false,
+                         print_stderr: false
+    run "/bin/cat", args:         ["{{staged_path}}/agent-install.out", "{{staged_path}}/agent-install.err"],
+                    must_succeed: false,
+                    print_stdout: true
+    remove ["agent-install.out", "agent-install.err"]
   end
 
-  # Unloading on uninstall would also run on every upgrade and leave the agent unloaded.
+  # Runs on upgrade too, which is wanted: SMAppService asks for an unregister before the
+  # executable changes, and the postflight above registers the new one, restarting the
+  # daemon on the new binary. It never touches a legacy plist, so no `uninstall launchctl:` —
+  # that would delete the hand-installed plist on every upgrade. `--for-upgrade` leaves no
+  # opt-out marker, which a user's `eq agent uninstall` writes; after a plain `brew uninstall`
+  # nothing is left to start eq anyway.
+  uninstall_preflight_steps do
+    run "/usr/bin/open", args:         ["-n", "-g", "-W", "-a", "{{appdir}}/EQ.app",
+                                        "--args", "agent", "uninstall", "--for-upgrade"],
+                         must_succeed: false
+  end
+
   zap launchctl: "com.servitola.eq",
       trash:     [
         "~/.cache/eq",
         "~/.config/eq",
         "~/Library/LaunchAgents/com.servitola.eq.plist",
+        "~/Library/Logs/eq.log",
       ]
+
+  caveats "If eq does not start, run `eq agent status`."
 end

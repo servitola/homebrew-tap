@@ -17,6 +17,10 @@ cask "eq" do
 
   app "EQ.app"
   binary "#{appdir}/EQ.app/Contents/MacOS/eq", target: "eq"
+  manpage "#{appdir}/EQ.app/Contents/Resources/man/eq.1"
+  bash_completion "#{appdir}/EQ.app/Contents/Resources/completions/eq.bash"
+  zsh_completion "#{appdir}/EQ.app/Contents/Resources/completions/_eq"
+  fish_completion "#{appdir}/EQ.app/Contents/Resources/completions/eq.fish"
 
   # Signed with Developer ID, not notarized: Gatekeeper would refuse the quarantined copy.
   postflight_steps do

@@ -8,7 +8,7 @@ My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks,
 the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
-[![casks](https://img.shields.io/badge/casks-9-brightgreen)](Casks)
+[![casks](https://img.shields.io/badge/casks-10-brightgreen)](Casks)
 [![formulae](https://img.shields.io/badge/formulae-2-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
@@ -37,19 +37,22 @@ in future — which is a promise about code that has not been written yet.
 | `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter) |
 | `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings) 🔒 |
 | `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq) |
+| `alt-tab-community` | AltTab with every former Pro feature free, notarized, Sparkle updates | per upstream release | [alt-tab-community](https://github.com/servitola/alt-tab-community) |
 
 Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
 on purpose — same app, my build; `boring-notch` is the same token as in the
 upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile write
 `cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
-`zap-terminal` is not `zap`, which is OWASP ZAP upstream.
+`zap-terminal` is not `zap`, which is OWASP ZAP upstream. `alt-tab-community` is not
+`alt-tab` on purpose: it is a fork with its own update feed, and `conflicts_with` keeps
+the two apart.
 
 🔒 = the release lives in a private repository. Those casks resolve the asset
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
-Nothing here is notarized, so every cask drops the quarantine attribute after
-install — what `--no-quarantine` does. Signing is Developer ID, except `voiceink`
+Nothing here is notarized except `alt-tab-community`, so every other cask drops the
+quarantine attribute after install — what `--no-quarantine` does. Signing is Developer ID, except `voiceink`
 (self-signed identity its TCC grants are pinned to) and `zen` (ad-hoc).
 
 ## Formulae
@@ -83,6 +86,7 @@ has on GitHub.
 | App | Trigger |
 | --- | --- |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
+| AltTab Community | `scripts/community/release.sh <version>` in its repository publishes and notarizes; `bin/bump-alt-tab-community.sh <version>` then points the cask at it |
 | Glasswings | `bin/release-glasswings.sh <version>` |
 | yt-dlp-puzzle-movies | `make release` in its own repository (`scripts/release.sh`) |
 | Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |

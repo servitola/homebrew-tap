@@ -55,6 +55,15 @@ awk -v v="$version" '
 [[ -s $notes ]] || { echo "CHANGELOG.md has no section for $version" >&2; exit 1 }
 
 APP_VERSION=$version "$src/scripts/build-app.sh" --identity "$identity"
+# eq installs this bundle as root after checking it against eq's own team; a release whose driver
+# would fail that check could never switch to driver mode.
+driver=$src/build/EQ.app/Contents/PlugIns/EQDriver.driver
+team=${${identity##*\(}%\)}
+codesign --verify --strict -R "=identifier \"com.servitola.eq.driver\" and anchor apple generic and certificate leaf[subject.OU] = \"$team\"" "$driver" ||
+  { echo "$driver is missing or not signed by team $team" >&2; exit 1 }
+revision=$(/usr/libexec/PlistBuddy -c 'Print :EQDriverRevision' "$driver/Contents/Info.plist" 2>/dev/null) ||
+  { echo "$driver has no EQDriverRevision" >&2; exit 1 }
+echo "EQ.app carries driver revision $revision"
 # The smoke refuses to start next to a live daemon: two taps on one device would stack.
 for label in $legacy $bundled; do
   job=$(launchctl print gui/$UID/$label 2>/dev/null) || continue

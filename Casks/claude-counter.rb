@@ -1,6 +1,6 @@
 cask "claude-counter" do
-  version "1.1.0"
-  sha256 "7bcefb06edd1c76c4763b689114f2f63ce7eacf8c120f3c1446107f65f2772b3"
+  version "1.1.1"
+  sha256 "2b00c4adb8b49622894669a44464fc6e08b1a2fb518d1403412433f84ec77156"
 
   url "https://github.com/servitola/claude_counter/releases/download/v#{version}/ClaudeCounter-#{version}.zip"
   name "Claude Counter"
@@ -16,6 +16,7 @@ cask "claude-counter" do
   depends_on macos: :sequoia
 
   app "ClaudeCounter.app"
+  binary "#{appdir}/ClaudeCounter.app/Contents/MacOS/ClaudeCounter", target: "claude-counter"
 
   # No relaunch step after an upgrade: `open` inside an install step answers
   # "kLSNoExecutableErr: The executable is missing" for EVERY app —

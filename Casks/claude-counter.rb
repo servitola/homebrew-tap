@@ -1,6 +1,6 @@
 cask "claude-counter" do
-  version "1.1.1"
-  sha256 "2b00c4adb8b49622894669a44464fc6e08b1a2fb518d1403412433f84ec77156"
+  version "1.2.0"
+  sha256 "35bdd3b0839cdf7744f45a682f330673f9542ce2d7e9e9aa1d7e2b8ee37d9166"
 
   url "https://github.com/servitola/claude_counter/releases/download/v#{version}/ClaudeCounter-#{version}.zip"
   name "Claude Counter"
@@ -28,6 +28,7 @@ cask "claude-counter" do
 
   zap trash: [
     "~/Library/Caches/com.servitola.claudecounter",
+    "~/Library/Group Containers/NZNV266K59.com.servitola.claudecounter",
     "~/Library/Preferences/com.servitola.claudecounter.plist",
     "~/Library/WebKit/com.servitola.claudecounter",
   ]

@@ -28,16 +28,16 @@ in future — which is a promise about code that has not been written yet.
 
 | Token | What | Built | Source |
 | --- | --- | --- | --- |
-| `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | nightly | [transmission](https://github.com/servitola/transmission) |
-| `forkgram` | Telegram Desktop (Forkgram) + personal patches | nightly | [telegram-desktop](https://github.com/servitola/telegram-desktop) 🔒 |
-| `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal) |
-| `voiceink` | VoiceInk (voice to text) + personal patches | nightly | [VoiceInk](https://github.com/servitola/VoiceInk) |
-| `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser) |
-| `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch) |
-| `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter) |
-| `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings) 🔒 |
-| `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq) |
-| `alt-tab-community` | AltTab with every former Pro feature free, notarized, Sparkle updates | per upstream release | [alt-tab-community](https://github.com/servitola/alt-tab-community) |
+| `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | nightly | [transmission](https://github.com/servitola/transmission#readme) |
+| `forkgram` | Telegram Desktop (Forkgram) + personal patches | nightly | [telegram-desktop](https://github.com/servitola/telegram-desktop#readme) 🔒 |
+| `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal#readme) |
+| `voiceink` | VoiceInk (voice to text) + personal patches | nightly | [VoiceInk](https://github.com/servitola/VoiceInk#readme) |
+| `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser#readme) |
+| `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch#readme) |
+| `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter#readme) |
+| `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings#readme) 🔒 |
+| `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq#readme) |
+| `alt-tab-community` | AltTab with every former Pro feature free, notarized, Sparkle updates | per upstream release | [alt-tab-community](https://github.com/servitola/alt-tab-community#readme) |
 
 Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
 on purpose — same app, my build; `boring-notch` is the same token as in the
@@ -59,8 +59,8 @@ quarantine attribute after install — what `--no-quarantine` does. Signing is D
 
 | Name | What | Source |
 | --- | --- | --- |
-| `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek) |
-| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies) |
+| `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek#readme) |
+| `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies#readme) |
 
 ## Layout
 

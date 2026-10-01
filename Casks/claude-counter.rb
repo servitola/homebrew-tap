@@ -1,6 +1,6 @@
 cask "claude-counter" do
-  version "1.2.1"
-  sha256 "5a6e577b00049d0e888d634db34ad11ae17e68bdec3c3f04de861297539da6d1"
+  version "1.3.0"
+  sha256 "0519baf401116b0007787da020b86df74961dc2a794b0dd7db4bc8bf1d5affe3"
 
   url "https://github.com/servitola/claude_counter/releases/download/v#{version}/ClaudeCounter-#{version}.zip"
   name "Claude Counter"
@@ -13,7 +13,7 @@ cask "claude-counter" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: :sequoia
+  depends_on macos: :tahoe
 
   app "ClaudeCounter.app"
   binary "#{appdir}/ClaudeCounter.app/Contents/MacOS/ClaudeCounter", target: "claude-counter"

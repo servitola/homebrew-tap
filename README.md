@@ -8,7 +8,7 @@ My own macOS builds — forks I maintain and apps I wrote — as Homebrew casks,
 the command-line tools as formulae.
 
 [![brew test-bot](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml/badge.svg)](https://github.com/servitola/homebrew-tap/actions/workflows/tests.yml)
-[![casks](https://img.shields.io/badge/casks-10-brightgreen)](Casks)
+[![casks](https://img.shields.io/badge/casks-11-brightgreen)](Casks)
 [![formulae](https://img.shields.io/badge/formulae-2-brightgreen)](Formula)
 [![licence](https://img.shields.io/badge/licence-BSD--2--Clause-blue)](LICENSE)
 
@@ -38,6 +38,7 @@ in future — which is a promise about code that has not been written yet.
 | `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings#readme) 🔒 |
 | `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq#readme) |
 | `alt-tab-community` | AltTab with every former Pro feature free, notarized, Sparkle updates | per upstream release | [alt-tab-community](https://github.com/servitola/alt-tab-community#readme) |
+| `polaska` | Glass tab strip pinned under the browser window, notarized, Sparkle updates | on demand | [polaska](https://github.com/servitola/polaska#readme) |
 
 Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
 on purpose — same app, my build; `boring-notch` is the same token as in the
@@ -51,7 +52,7 @@ the two apart.
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
-Nothing here is notarized except `alt-tab-community`, so every other cask drops the
+Nothing here is notarized except `alt-tab-community` and `polaska`, so every other cask drops the
 quarantine attribute after install — what `--no-quarantine` does. Signing is Developer ID, except `voiceink`
 (self-signed identity its TCC grants are pinned to) and `zen` (ad-hoc).
 
@@ -79,6 +80,10 @@ zips it, cuts GitHub release `v<version>`, rewrites `version`/`sha256` in the
 cask, commits and pushes. Options: `--identity`, `--entitlements`, `--hardened`,
 `--strip`, `--tag`, `--target`, `--no-push`.
 
+`bin/bump-cask.sh <token> <version> <asset-url>` is the other half, for an app whose
+own repository builds, notarizes and publishes: it only rewrites `version`/`sha256`,
+commits and pushes. `bin/bump-alt-tab-community.sh` is that with AltTab's url filled in.
+
 Push goes to origin; its mirror carries the commit to GitHub, which is never
 pushed directly. The release tag must point at a commit the source repo already
 has on GitHub.
@@ -87,6 +92,7 @@ has on GitHub.
 | --- | --- |
 | Claude Counter | `bin/release-claude-counter.sh <version>` |
 | AltTab Community | `scripts/community/release.sh <version>` in its repository publishes and notarizes; `bin/bump-alt-tab-community.sh <version>` then points the cask at it |
+| Polaska | `scripts/release.sh`, then `scripts/publish.sh` in its repository: notarized DMG, release, Sparkle feed, and `bin/bump-cask.sh` for the cask |
 | Glasswings | `bin/release-glasswings.sh <version>` |
 | yt-dlp-puzzle-movies | `make release` in its own repository (`scripts/release.sh`) |
 | Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |

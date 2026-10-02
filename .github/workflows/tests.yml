@@ -97,4 +97,5 @@ jobs:
             servitola/tap/zap-terminal \
             servitola/tap/voiceink \
             servitola/tap/zen \
-            servitola/tap/claude-counter
+            servitola/tap/claude-counter \
+            servitola/tap/polaska

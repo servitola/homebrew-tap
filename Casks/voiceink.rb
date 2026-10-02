@@ -15,7 +15,7 @@ cask "voiceink" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: :sonoma
+  depends_on macos: :sequoia
 
   app "VoiceInk.app"
 

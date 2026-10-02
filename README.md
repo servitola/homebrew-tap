@@ -34,13 +34,14 @@ in future — which is a promise about code that has not been written yet.
 | `voiceink` | VoiceInk (voice to text) + personal patches, notarized | nightly | [VoiceInk](https://github.com/servitola/VoiceInk#readme) |
 | `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser#readme) |
 | `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch#readme) |
+| `hammerspoon` | Hammerspoon from master + personal patches, notarized, auto-update off | weekly | [hammerspoon](https://github.com/servitola/hammerspoon) |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter#readme) |
 | `glasswings` | Notification-banner daemon + `glasswings-send` | on demand | [glasswings](https://github.com/servitola/glasswings#readme) 🔒 |
 | `eq` | Headless per-device system EQ (`eq` CLI + daemon), no icon | on demand | [eq](https://github.com/servitola/eq#readme) |
 | `alt-tab-community` | AltTab with every former Pro feature free, notarized, Sparkle updates | per upstream release | [alt-tab-community](https://github.com/servitola/alt-tab-community#readme) |
 | `polaska` | Glass tab strip pinned under the browser window, notarized, Sparkle updates | on demand | [polaska](https://github.com/servitola/polaska#readme) |
 
-Three tokens (`transmission`, `voiceink`, `zen`) are the same as in homebrew/cask
+Four tokens (`transmission`, `voiceink`, `zen`, `hammerspoon`) are the same as in homebrew/cask
 on purpose — same app, my build; `boring-notch` is the same token as in the
 upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile write
 `cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
@@ -52,7 +53,7 @@ the two apart.
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
-Nothing here is notarized except `alt-tab-community`, `polaska` and `voiceink`, so every other cask
+Nothing here is notarized except `alt-tab-community`, `polaska`, `voiceink` and `hammerspoon`, so every other cask
 drops the quarantine attribute after install — what `--no-quarantine` does. Signing is Developer ID,
 except `zen` (ad-hoc). `bin/publish-app.sh --notarize <notarytool profile>` is what moves a cask
 from the first group to the second; the cask's quarantine postflight goes in the same commit.
@@ -96,7 +97,7 @@ has on GitHub.
 | Polaska | `scripts/release.sh`, then `scripts/publish.sh` in its repository: notarized DMG, release, Sparkle feed, and `bin/bump-cask.sh` for the cask |
 | Glasswings | `bin/release-glasswings.sh <version>` |
 | yt-dlp-puzzle-movies | `make release` in its own repository (`scripts/release.sh`) |
-| Transmission, Forkgram, Zap, VoiceInk, Zen | their `~/projects/forks/jobs/*/sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
+| Transmission, Forkgram, Zap, VoiceInk, Zen, Hammerspoon | their `~/projects/forks/jobs/*/sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
 The script-driven tags (Claude Counter, Glasswings, yt-dlp-puzzle-movies) are pushed to origin, not
 GitHub: the mirror runs `--mirror --force` and would delete a tag made upstream.

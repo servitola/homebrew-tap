@@ -3,13 +3,16 @@
 # Usage: bin/publish-app.sh <cask-token> <owner/repo> <version> <path/to/App.app>
 #          [--identity "<name or sha1>"] [--entitlements plist] [--hardened] [--strip]
 #          [--tag v<version>] [--target main] [--no-push] [--notes-file path]
+#          [--notarize <notarytool keychain profile>]
 # The tag is created on --target, so that ref on GitHub must already be the commit that
 # was built. Asset name: <App without spaces>-<version>.zip.
+# --notarize implies --hardened and needs a Developer ID identity; the published zip then
+# carries a stapled app that Gatekeeper opens without stripping quarantine.
 set -euo pipefail
 
 tap=${0:a:h:h}
 identity="Developer ID Application: Vladislav Konovalov (NZNV266K59)"
-entitlements= hardened=0 strip=0 tag= target=main push=1 notes_file=
+entitlements= hardened=0 strip=0 tag= target=main push=1 notes_file= notary_profile=
 (( $# >= 4 )) || { sed -n '2,7p' "$0" >&2; exit 2 }
 token=$1 gh_repo=$2 version=$3 app=${4:a}; shift 4
 while (( $# )); do
@@ -22,9 +25,12 @@ while (( $# )); do
     --target) target=$2; shift 2 ;;
     --no-push) push=0; shift ;;
     --notes-file) notes_file=$2; shift 2 ;;
+    --notarize) notary_profile=$2; hardened=1; shift 2 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
+[[ -z $notary_profile || $identity == *"Developer ID Application"* ]] ||
+  { echo "--notarize needs a Developer ID Application identity, got: $identity" >&2; exit 1 }
 : ${tag:=v$version}
 cask=Casks/$token.rb
 name=${app:t:r}
@@ -61,9 +67,25 @@ fi
 # Apple's timestamp service refuses a self-signed identity, and those are exactly the
 # identities an app's TCC grants may be pinned to (VoiceInk), so the timestamp follows
 # the identity.
-sign=(codesign --force --deep --sign "$identity")
+sign=(codesign --force --sign "$identity")
 [[ $identity == *"Developer ID"* ]] && sign+=(--timestamp) || sign+=(--timestamp=none)
 (( hardened )) && sign+=(--options runtime)
+if (( hardened )); then
+  # Inside-out instead of --deep: --deep stamps the app's entitlements onto every nested
+  # helper (Sparkle's XPC services, Updater.app) and the notary service wants each nested
+  # binary signed with the hardened runtime and a timestamp in its own right.
+  contents=$work/$name.app/Contents
+  for f in ${(f)"$(find "$contents" -type f \( -perm -u+x -o -name '*.dylib' -o -name '*.so' \) 2>/dev/null)"}; do
+    [[ $(file -b "$f") == *Mach-O* ]] || continue
+    "${sign[@]}" --preserve-metadata=entitlements "$f"
+  done
+  # -depth lists children before parents, so a framework's XPC service is sealed first.
+  for b in ${(f)"$(find "$contents" -depth -type d \( -name '*.framework' -o -name '*.xpc' -o -name '*.app' -o -name '*.appex' \))"}; do
+    "${sign[@]}" --preserve-metadata=entitlements "$b"
+  done
+else
+  sign+=(--deep)
+fi
 if [[ -n $entitlements ]]; then
   sign+=(--entitlements "$entitlements")
 else
@@ -71,6 +93,29 @@ else
 fi
 "${sign[@]}" "$work/$name.app"
 codesign --verify --deep --strict "$work/$name.app"
+
+if [[ -n $notary_profile ]]; then
+  (cd "$work" && ditto -c -k --keepParent "$name.app" notarize.zip)
+  echo "notarizing $name $version (profile $notary_profile)…"
+  submit=$(xcrun notarytool submit "$work/notarize.zip" --keychain-profile "$notary_profile" \
+             --wait --timeout 1h --output-format json) || true
+  verdict_status=$(jq -r '.status // empty' <<< "$submit" 2>/dev/null || true)
+  if [[ $verdict_status != Accepted ]]; then
+    echo "notarization failed (status: ${verdict_status:-none}): $submit" >&2
+    id=$(jq -r '.id // empty' <<< "$submit" 2>/dev/null || true)
+    [[ -n $id ]] && xcrun notarytool log "$id" --keychain-profile "$notary_profile" >&2 || true
+    exit 1
+  fi
+  xcrun stapler staple "$work/$name.app"
+  xcrun stapler validate "$work/$name.app"
+  # Gatekeeper's own verdict, the one a quarantined download gets. Captured, not piped
+  # into grep -q: an early grep exit kills the writer and pipefail turns a pass into 141.
+  verdict=$(spctl -a -vv -t exec "$work/$name.app" 2>&1) || true
+  echo "$verdict"
+  [[ $verdict == *"source=Notarized Developer ID"* ]] ||
+    { echo "spctl does not accept the stapled app as Notarized Developer ID" >&2; exit 1 }
+  rm "$work/notarize.zip"
+fi
 (cd "$work" && ditto -c -k --sequesterRsrc --keepParent "$name.app" "$zip")
 sha=$(shasum -a 256 "$work/$zip" | cut -d' ' -f1)
 
@@ -78,7 +123,9 @@ sed -i '' -e "s|^  version \".*\"|  version \"$version\"|" -e "s|^  sha256 \".*\
 grep -q "version \"$version\"" "$tap/$cask" && grep -q "sha256 \"$sha\"" "$tap/$cask" || { echo "cask bump failed" >&2; exit 1 }
 brew style "$tap/$cask"
 
-footer="Built from $gh_repo@$target, signed with \"$identity\", not notarized. Install: brew install servitola/tap/$token"
+notarized="not notarized"
+[[ -n $notary_profile ]] && notarized="notarized by Apple"
+footer="Built from $gh_repo@$target, signed with \"$identity\", $notarized. Install: brew install servitola/tap/$token"
 if [[ -n $notes_file ]]; then
   [[ -f $notes_file ]] || { echo "no notes file $notes_file" >&2; exit 1 }
   { cat "$notes_file"; echo; echo "$footer"; } > "$work/notes.md"

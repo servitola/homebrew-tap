@@ -31,7 +31,7 @@ in future — which is a promise about code that has not been written yet.
 | `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | nightly | [transmission](https://github.com/servitola/transmission#readme) |
 | `forkgram` | Telegram Desktop (Forkgram) + personal patches | nightly | [telegram-desktop](https://github.com/servitola/telegram-desktop#readme) 🔒 |
 | `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal#readme) |
-| `voiceink` | VoiceInk (voice to text) + personal patches | nightly | [VoiceInk](https://github.com/servitola/VoiceInk#readme) |
+| `voiceink` | VoiceInk (voice to text) + personal patches, notarized | nightly | [VoiceInk](https://github.com/servitola/VoiceInk#readme) |
 | `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser#readme) |
 | `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch#readme) |
 | `claude-counter` | Menu-bar indicator of Claude.ai usage | on demand | [claude_counter](https://github.com/servitola/claude_counter#readme) |
@@ -52,9 +52,10 @@ the two apart.
 through the GitHub API using the local `gh` login (or `HOMEBREW_GITHUB_API_TOKEN`),
 so they need `gh auth login` on the machine.
 
-Nothing here is notarized except `alt-tab-community` and `polaska`, so every other cask drops the
-quarantine attribute after install — what `--no-quarantine` does. Signing is Developer ID, except `voiceink`
-(self-signed identity its TCC grants are pinned to) and `zen` (ad-hoc).
+Nothing here is notarized except `alt-tab-community`, `polaska` and `voiceink`, so every other cask
+drops the quarantine attribute after install — what `--no-quarantine` does. Signing is Developer ID,
+except `zen` (ad-hoc). `bin/publish-app.sh --notarize <notarytool profile>` is what moves a cask
+from the first group to the second; the cask's quarantine postflight goes in the same commit.
 
 ## Formulae
 
@@ -95,7 +96,7 @@ has on GitHub.
 | Polaska | `scripts/release.sh`, then `scripts/publish.sh` in its repository: notarized DMG, release, Sparkle feed, and `bin/bump-cask.sh` for the cask |
 | Glasswings | `bin/release-glasswings.sh <version>` |
 | yt-dlp-puzzle-movies | `make release` in its own repository (`scripts/release.sh`) |
-| Transmission, Forkgram, Zap, VoiceInk, Zen | their `dotfiles/cron/scripts/*-sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
+| Transmission, Forkgram, Zap, VoiceInk, Zen | their `~/projects/forks/jobs/*/sync.sh` job, after a green build; `bin/release-transmission.sh` builds Transmission on demand |
 
 The script-driven tags (Claude Counter, Glasswings, yt-dlp-puzzle-movies) are pushed to origin, not
 GitHub: the mirror runs `--mirror --force` and would delete a tag made upstream.

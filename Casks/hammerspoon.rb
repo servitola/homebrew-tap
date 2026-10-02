@@ -2,8 +2,8 @@
 # The Brewfile must reference it as servitola/tap/hammerspoon and the official
 # `cask "hammerspoon"` must stay out, or `brew bundle` reinstalls the upstream build over this one.
 cask "hammerspoon" do
-  version "0.0.0"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  version "1.1.1-20261002.42ac413"
+  sha256 "b9afd77b60b1156f28015b54eed826b60fd92420c67fdf2ee98a6c020175ce78"
 
   url "https://github.com/servitola/hammerspoon/releases/download/v#{version}/Hammerspoon-#{version}.zip"
   name "Hammerspoon"

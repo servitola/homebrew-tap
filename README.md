@@ -62,7 +62,7 @@ from the first group to the second; the cask's quarantine postflight goes in the
 
 | Name | What | Source |
 | --- | --- | --- |
-| `nowplayingseek` | Skip 10 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek#readme) |
+| `nowplayingseek` | Skip 5 seconds forward or back in whatever is playing, from a hotkey, a keyboard knob or a script | [nowplayingseek](https://github.com/servitola/nowplayingseek#readme) |
 | `yt-dlp-puzzle-movies` | yt-dlp plugin for puzzle-movies.com | [yt-dlp-puzzle-movies](https://github.com/servitola/yt-dlp-puzzle-movies#readme) |
 
 ## Layout

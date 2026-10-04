@@ -11,7 +11,7 @@
 # that section becomes the GitHub release notes.
 set -euo pipefail
 
-src=${EQ_SRC:-/Volumes/SanDisk/projects/eq}
+src=${EQ_SRC:-${DIR_EQ:?set DIR_EQ or EQ_SRC to the eq checkout}}
 identity="Developer ID Application: Vladislav Konovalov (NZNV266K59)"
 (( $# == 1 )) || { sed -n '2,5p' "$0" >&2; exit 2 }
 version=$1

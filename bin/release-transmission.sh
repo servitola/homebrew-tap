@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Build the fork's macOS client and publish it — the same steps the nightly
-# dotfiles/cron/scripts/transmission-sync.sh runs, for a build on demand.
+# ~/projects/cron/scripts/transmission-sync.sh runs, for a build on demand.
 # Usage: bin/release-transmission.sh [version]
 set -euo pipefail
 

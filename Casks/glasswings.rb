@@ -21,43 +21,50 @@ cask "glasswings" do
   app "Glasswings.app"
   binary "#{appdir}/Glasswings.app/Contents/Resources/bin/glasswings-send"
 
-  # Glasswings is a resident launchd daemon, not something the user opens, and casks have
-  # no LaunchAgent artifact — so the agent is written here exactly as the repo's
-  # install.sh writes it, and `uninstall launchctl:` takes it down on upgrade.
-  #
-  # It is never loaded with launchctl: inside the install-steps sandbox both `launchctl
-  # bootstrap gui/<uid>` and `launchctl load -w` answer "5: Input/output error", while the
-  # very same plist bootstraps by hand a second later (retested on Homebrew 6.0.22,
-  # 2026-09-09). launchd picks the agent up at the next login on its own; `open` covers
-  # this session, and `uninstall launchctl:` has already booted the previous copy out by
-  # the time these steps run.
-  #
-  # The log path is spelled with {{user}} because {{home}} is not one of the tokens
-  # expanded inside step content — only the step's own `path` understands `base: :home`.
-  postflight_steps do
-    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Glasswings.app"]
-    write_file "Library/LaunchAgents/app.glasswings.daemon.plist", <<~XML, base: :home
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0"><dict>
-        <key>Label</key>             <string>app.glasswings.daemon</string>
-        <key>ProgramArguments</key>  <array><string>{{appdir}}/Glasswings.app/Contents/MacOS/Glasswings</string></array>
-        <key>RunAtLoad</key>         <true/>
-        <key>KeepAlive</key>         <true/>
-        <key>ProcessType</key>       <string>Adaptive</string>
-        <key>LowPriorityIO</key>     <true/>
-        <key>StandardOutPath</key>   <string>/Users/{{user}}/Library/Logs/glasswings.log</string>
-        <key>StandardErrorPath</key> <string>/Users/{{user}}/Library/Logs/glasswings.log</string>
-      </dict></plist>
-    XML
-    run "/usr/bin/open", args: ["-a", "{{appdir}}/Glasswings.app"]
+  # Homebrew replaces the app artifact without quitting what is running, and
+  # `uninstall` directives come from the *installed* version, so the `quit:`
+  # below cannot help on the upgrade that first introduces it. Without this the
+  # old daemon survives with the socket bound, and the postflight `open` only
+  # reactivates it — LaunchServices dedupes by bundle id, so the new bundle
+  # never gets a process. Killing it here, after the old artifact is gone and
+  # before the new one lands, is what makes that upgrade land.
+  preflight_steps do
+    run "/usr/bin/pkill", args: ["-x", "Glasswings"], must_succeed: false
   end
 
-  uninstall launchctl: "app.glasswings.daemon"
+  # Glasswings is a resident launchd agent, and casks have no LaunchAgent
+  # artifact — but nothing here has to write one any more. The app ships the
+  # agent description at Contents/Library/LaunchAgents/ and registers it
+  # through SMAppService on first launch, which is also what sidesteps the
+  # install-steps sandbox: inside these steps both `launchctl bootstrap
+  # gui/<uid>` and `launchctl load -w` answer "5: Input/output error", while
+  # the same plist bootstraps by hand a second later (Homebrew 6.0.22).
+  #
+  # What is left is clearing quarantine — the build is signed with a Developer
+  # ID but not notarised — and opening the bundle once, which registers the
+  # agent. Homebrew 7's step sandbox refuses every `open` (-10810, verified on
+  # 7.0.7 with Calculator), and a failing step rolls the whole install back, so
+  # the launch is best-effort and the caveat asks for it instead.
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/Glasswings.app"]
+    run "/usr/bin/open", args: ["-a", "{{appdir}}/Glasswings.app"], must_succeed: false
+  end
+
+  # `launchctl:` stops the registered agent and deletes any hand-written
+  # ~/Library/LaunchAgents plist an older version left behind. `quit:` catches
+  # the copy the postflight `open` started on versions that predate the agent —
+  # launchctl cannot see that one, so an upgrade used to orphan it.
+  uninstall launchctl: ["com.servitola.glasswings.daemon", "app.glasswings.daemon"],
+            quit:      "com.servitola.glasswings"
 
   zap trash: [
     "~/.config/glasswings",
     "~/.glasswings.sock",
     "~/Library/Logs/glasswings.log",
   ]
+
+  caveats <<~EOS
+    Open Glasswings once after every install or upgrade: that launch registers
+    the login agent, and the daemon runs from launchd from then on.
+  EOS
 end

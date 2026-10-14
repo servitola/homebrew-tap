@@ -1,6 +1,6 @@
 cask "claude-counter" do
-  version "1.3.0"
-  sha256 "0519baf401116b0007787da020b86df74961dc2a794b0dd7db4bc8bf1d5affe3"
+  version "1.3.1"
+  sha256 "04a0be7d012b5343ce6538440a66f6ae8030e5def383cec6c5a7d28e4284627c"
 
   url "https://github.com/servitola/claude_counter/releases/download/v#{version}/ClaudeCounter-#{version}.zip"
   name "Claude Counter"

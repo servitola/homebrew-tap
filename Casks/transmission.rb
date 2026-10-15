@@ -1,6 +1,6 @@
 cask "transmission" do
-  version "4.2.0-dev.20260909.4ce3894"
-  sha256 "1d1a052637d1117f93985dc83f6017781167b2d5e49bf6a28da07996598130c5"
+  version "4.2.0-dev.20261015.85278c4"
+  sha256 "f096376c12cf8044c3be6d714bed296387ef9ddc2e4163cf6a394d2b085df6ad"
 
   url "https://github.com/servitola/transmission/releases/download/v#{version}/Transmission-#{version}.zip"
   name "Transmission"

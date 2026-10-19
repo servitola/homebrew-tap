@@ -70,6 +70,19 @@ fi
 sign=(codesign --force --sign "$identity")
 [[ $identity == *"Developer ID"* ]] && sign+=(--timestamp) || sign+=(--timestamp=none)
 (( hardened )) && sign+=(--options runtime)
+# Apple's timestamp service drops a request now and then (hammerspoon 2026-10-11,
+# boring-notch 10-19), and a hardened app makes one request per nested binary, so a
+# single dropped request failed the whole release. codesign --force is idempotent.
+sign_with_retry() {
+  local out attempt
+  for attempt in 1 2 3 4; do
+    out=$("${sign[@]}" "$@" 2>&1) && { [[ -z $out ]] || print -r -- "$out" >&2; return 0 }
+    print -r -- "$out" >&2
+    [[ $out == *"timestamp service is not available"* ]] || return 1
+    (( attempt < 4 )) && { echo "timestamp service unavailable, retry $attempt/3" >&2; sleep $(( attempt * 10 )) }
+  done
+  return 1
+}
 if (( hardened )); then
   # Inside-out instead of --deep: --deep stamps the app's entitlements onto every nested
   # helper (Sparkle's XPC services, Updater.app) and the notary service wants each nested
@@ -77,11 +90,11 @@ if (( hardened )); then
   contents=$work/$name.app/Contents
   for f in ${(f)"$(find "$contents" -type f \( -perm -u+x -o -name '*.dylib' -o -name '*.so' \) 2>/dev/null)"}; do
     [[ $(file -b "$f") == *Mach-O* ]] || continue
-    "${sign[@]}" --preserve-metadata=entitlements "$f"
+    sign_with_retry --preserve-metadata=entitlements "$f"
   done
   # -depth lists children before parents, so a framework's XPC service is sealed first.
   for b in ${(f)"$(find "$contents" -depth -type d \( -name '*.framework' -o -name '*.xpc' -o -name '*.app' -o -name '*.appex' \))"}; do
-    "${sign[@]}" --preserve-metadata=entitlements "$b"
+    sign_with_retry --preserve-metadata=entitlements "$b"
   done
 else
   sign+=(--deep)
@@ -91,7 +104,7 @@ if [[ -n $entitlements ]]; then
 else
   sign+=(--preserve-metadata=entitlements)
 fi
-"${sign[@]}" "$work/$name.app"
+sign_with_retry "$work/$name.app"
 codesign --verify --deep --strict "$work/$name.app"
 
 if [[ -n $notary_profile ]]; then

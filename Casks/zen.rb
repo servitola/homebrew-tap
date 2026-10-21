@@ -2,8 +2,8 @@
 # Brewfile must reference it as servitola/tap/zen, never a bare "zen": the core cask
 # would replace this build and drop its policies.json (2026-08-30).
 cask "zen" do
-  version "1.23.3b-20261018.cba27b9"
-  sha256 "73e2729da46608727bb996484d8b674e0e7fcd6162a3c61175def3578a8ff141"
+  version "1.23.4b-20261021.541ee55"
+  sha256 "559c0c9f49f33c41e4b7a311c1dd684b20f713bbbc0c0b14f81791306e31c6a8"
 
   url "https://github.com/servitola/zen-browser/releases/download/v#{version}/Zen-#{version}.zip"
   name "Zen Browser"

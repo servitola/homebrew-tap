@@ -2,8 +2,8 @@ require_relative "../lib/private_github_release_download_strategy"
 
 # Same token as homebrew/cask's forkgram on purpose: same app, our build (see README).
 cask "forkgram" do
-  version "7.3.1"
-  sha256 "0272861a70196d9994502f408869f4959d8448c835dab094f7836df10a5ec488"
+  version "7.3.2"
+  sha256 "8c2af630b82487ba305548f8f61f0c9921820466e023a1774ea2a2bcfb57b6ec"
 
   url "https://github.com/servitola/telegram-desktop/releases/download/v#{version}-fork/Forkgram-#{version}.zip",
       using: PrivateGitHubReleaseDownloadStrategy

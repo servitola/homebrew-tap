@@ -2,8 +2,8 @@
 # (see README). The Brewfile must reference it as servitola/tap/boring-notch and the
 # upstream tap must stay out, or `brew bundle` reinstalls the official build over this one.
 cask "boring-notch" do
-  version "2.7.3-20261022.ecd8661"
-  sha256 "3e83b142490b8a0f377dd8f7ef78ece0440055555467ad2f28f1c52b7e44c298"
+  version "2.7.3-20261102.aeaec12"
+  sha256 "37c06c442ace8ba966aafe83f98fff8cd628420bd91c302397cc20e2bf01d009"
 
   url "https://github.com/servitola/boring-notch/releases/download/v#{version}/BoringNotch-#{version}.zip"
   name "TheBoringNotch"

@@ -1,6 +1,6 @@
 cask "alt-tab-community" do
-  version "11.9.2"
-  sha256 "afd222ad0345bb2bcc3160bb3744ec588b99c4d4eda74c862bfcd81dab86e761"
+  version "11.10.1"
+  sha256 "64c3f06532720899545c192ed60d1300160b7f931316cf826dceee2c9cf76189"
 
   url "https://github.com/servitola/alt-tab-community/releases/download/community-#{version}/AltTab-#{version}.zip"
   name "AltTab Community"

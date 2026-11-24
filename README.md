@@ -30,7 +30,8 @@ in future — which is a promise about code that has not been written yet.
 | --- | --- | --- | --- |
 | `transmission` | Transmission with a native Liquid Glass UI (macOS 26+) | nightly | [transmission](https://github.com/servitola/transmission#readme) |
 | `forkgram` | Telegram Desktop (Forkgram) + personal patches | nightly | [telegram-desktop](https://github.com/servitola/telegram-desktop#readme) 🔒 |
-| `zap-terminal` | Zap, the open-source Warp fork | nightly | [zap-terminal](https://github.com/servitola/zap-terminal#readme) |
+| `zapng` | ZapNG (q0wkp/zap-ng), the open-source Warp fork that continues Zap | nightly | [zap-terminal](https://github.com/servitola/zap-terminal#readme) |
+| `zap-terminal` | Zap, frozen at its last build: zerx-lab/zap was archived in November 2026, deprecated in favour of `zapng` | — | [zap-terminal](https://github.com/servitola/zap-terminal#readme) |
 | `voiceink` | VoiceInk (voice to text) + personal patches, notarized | nightly | [VoiceInk](https://github.com/servitola/VoiceInk#readme) |
 | `zen` | Zen Browser from source, auto-update off | weekly | [zen-browser](https://github.com/servitola/zen-browser#readme) |
 | `boring-notch` | TheBoringNotch + personal patches, auto-update off | nightly | [boring-notch](https://github.com/servitola/boring-notch#readme) |
@@ -45,7 +46,8 @@ Four tokens (`transmission`, `voiceink`, `zen`, `hammerspoon`) are the same as i
 on purpose — same app, my build; `boring-notch` is the same token as in the
 upstream tap `theboredteam/boring-notch`, for the same reason. In a Brewfile write
 `cask "servitola/tap/zen"`: a bare token pulls the core cask over my build.
-`zap-terminal` is not `zap`, which is OWASP ZAP upstream. `alt-tab-community` is not
+`zap-terminal` is not `zap`, which is OWASP ZAP upstream; `zapng` is not `zap-ng`, the
+token of q0wkp's own tap, which ZapNG's in-app updater would `brew upgrade` by itself. `alt-tab-community` is not
 `alt-tab` on purpose: it is a fork with its own update feed, and `conflicts_with` keeps
 the two apart.
 
